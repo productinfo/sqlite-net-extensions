@@ -172,6 +172,9 @@ namespace SQLiteNetExtensions.Extensions
                 var relationshipAttribute = relationshipProperty.GetAttribute<RelationshipAttribute>();
                 if (!onlyCascadeChildren || relationshipAttribute.IsCascadeRead)
                     conn.GetChildRecursive(element, relationshipProperty, recursive, objectCache);
+                else if (relationshipAttribute is TextBlobAttribute) {
+                    conn.GetChildRecursive(element, relationshipProperty, false, objectCache);
+                }
             }
         }
 

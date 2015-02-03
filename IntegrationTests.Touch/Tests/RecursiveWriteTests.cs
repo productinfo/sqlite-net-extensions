@@ -1041,6 +1041,85 @@ namespace SQLiteNetExtensions.IntegrationTests
             Assert.That(existingUsers, Is.EquivalentTo(expectedUsers));
         }
         #endregion
+
+        #region InsertTextBlobPropertiesRecursive
+        class Teacher {
+            [PrimaryKey, AutoIncrement]
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            [OneToMany(CascadeOperations = CascadeOperation.CascadeInsert)]
+            public List<Student> Students { get; set; }
+        }
+
+        class Student {
+            [PrimaryKey, AutoIncrement]
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            [ManyToOne]
+            public Teacher Teacher { get; set; }
+
+            [TextBlob("AddressBlob")]
+            public Address Address { get; set; }
+
+            [ForeignKey(typeof(Teacher))]
+            public int TeacherId { get; set; }
+            public String AddressBlob { get; set; }
+
+        }
+
+        class Address {
+            public string Street { get; set; }
+            public string Town { get; set; }
+        }
+
+        [Test]
+        public void TestInsertTextBlobPropertiesRecursive() {
+            var conn = Utils.CreateConnection();
+            conn.DropTable<Student>();
+            conn.DropTable<Teacher>();
+            conn.CreateTable<Student>();
+            conn.CreateTable<Teacher>();
+
+            var teacher = new Teacher {
+                Name = "John Smith",
+                Students = new List<Student> {
+                    new Student {
+                        Name = "Bruce Banner",
+                        Address = new Address {
+                            Street = "Sesame Street 5",
+                            Town = "Gotham City"
+                        }
+                    },
+                    new Student {
+                        Name = "Peter Parker",
+                        Address = new Address {
+                            Street = "Arlington Road 69",
+                            Town = "Arkham City"
+                        }
+                    },
+                    new Student {
+                        Name = "Steve Rogers",
+                        Address = new Address {
+                            Street = "28th Street 19",
+                            Town = "New York"
+                        }
+                    }
+                }
+            };
+
+            conn.InsertWithChildren(teacher, recursive: true);
+
+            foreach (var student in teacher.Students) {
+                var dbStudent = conn.GetWithChildren<Student>(student.Id);
+                Assert.NotNull(dbStudent);
+                Assert.NotNull(dbStudent.Address);
+                Assert.AreEqual(student.Address.Street, dbStudent.Address.Street);
+                Assert.AreEqual(student.Address.Town, dbStudent.Address.Town);
+            }
+        }
+        #endregion
     }
 }
 

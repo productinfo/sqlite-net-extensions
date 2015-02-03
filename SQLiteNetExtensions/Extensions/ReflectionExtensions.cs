@@ -183,7 +183,7 @@ namespace SQLiteNetExtensions.Extensions
                     var inverseAttribute = inverseProperty.GetAttribute<RelationshipAttribute>();
                     EnclosedType enclosedInverseType;
                     var inverseType = inverseProperty.GetEntityType(out enclosedInverseType);
-                    if (inverseAttribute != null && elementType.GetTypeInfo().IsAssignableFrom(inverseType.GetTypeInfo()))
+                    if (inverseAttribute != null && inverseType.GetTypeInfo().Equals(elementType.GetTypeInfo()))
                     {
                         result = inverseProperty;
                         break;

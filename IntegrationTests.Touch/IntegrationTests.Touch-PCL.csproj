@@ -95,27 +95,36 @@
     <Compile Include="Tests\OneToOneTests.cs" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="packages.config" />
     <Compile Include="Tests\Utils.cs" />
     <Compile Include="Tests\DeleteTests.cs" />
     <None Include="Entitlements.plist" />
     <Compile Include="Tests\RecursiveReadTests.cs" />
     <Compile Include="Tests\RecursiveWriteTests.cs" />
+    <None Include="packages.config" />
+    <Compile Include="Tests\RecursiveReadAsyncTests.cs" />
+    <Compile Include="Tests\RecursiveWriteAsyncTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SQLiteNetExtensions\SQLiteNetExtensions-PCL.csproj">
       <Project>{F723017D-EDE5-49CC-A84F-881C067C6004}</Project>
       <Name>SQLiteNetExtensions-PCL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SQLiteNetExtensionsAsync-PCL\SQLiteNetExtensionsAsync-PCL.csproj">
+      <Project>{F206CA90-929F-4C1B-888A-5FAF6EE67D3C}</Project>
+      <Name>SQLiteNetExtensionsAsync-PCL</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="monotouch" />
     <Reference Include="MonoTouch.NUnitLite" />
-    <Reference Include="SQLite.Net.Platform.XamarinIOS">
-      <HintPath>..\packages\SQLite.Net.Platform.XamarinIOS.2.4.1\lib\monotouch\SQLite.Net.Platform.XamarinIOS.dll</HintPath>
-    </Reference>
     <Reference Include="SQLite.Net">
-      <HintPath>..\packages\SQLite.Net-PCL.2.4.1\lib\portable-win8+net45+wp8+wpa81+MonoAndroid1+MonoTouch1\SQLite.Net.dll</HintPath>
+      <HintPath>..\packages\SQLite.Net-PCL.2.5.1\lib\portable-win8+net45+wp8+wpa81+MonoAndroid1+MonoTouch1\SQLite.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite.Net.Platform.XamarinIOS">
+      <HintPath>..\packages\SQLite.Net.Platform.XamarinIOS.2.4.0\lib\monotouch\SQLite.Net.Platform.XamarinIOS.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite.Net.Async">
+      <HintPath>..\packages\SQLite.Net.Async-PCL.2.4.1\lib\portable-win8+net45+wp8+wpa81+MonoAndroid1+MonoTouch1\SQLite.Net.Async.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

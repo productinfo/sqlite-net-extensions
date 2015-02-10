@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SQLite.Net.Async;
+using NUnit.Framework.Constraints;
 
 #if PCL
 using SQLite.Net;
@@ -51,5 +53,13 @@ namespace SQLiteNetExtensions.IntegrationTests
             return new SQLiteConnection(DatabaseFilePath);
             #endif
         }
+
+        #if PCL
+        static readonly SQLiteConnectionString connectionString = new SQLiteConnectionString(DatabaseFilePath, false);
+        static readonly SQLiteAsyncConnection asyncConnection = new SQLiteAsyncConnection(() => new SQLiteConnectionWithLock(new SQLitePlatformIOS(), connectionString));
+        public static SQLiteAsyncConnection CreateAsyncConnection() {
+            return asyncConnection;
+        }
+        #endif
     }
 }

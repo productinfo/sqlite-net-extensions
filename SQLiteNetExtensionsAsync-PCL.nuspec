@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>SQLiteNetExtensions.Async</id>
+    <version>1.2.3</version>
+    <title>SQLite.Net.Async Extensions PCL</title>
+    <authors>TwinCoders</authors>
+    <owners>TwinCoders</owners>
+    <licenseUrl>https://bitbucket.org/twincoders/sqlite-net-extensions</licenseUrl>
+    <projectUrl>https://bitbucket.org/twincoders/sqlite-net-extensions</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>SQLite-Net Extensions is a very simple ORM that provides cascade operations, one-to-one, one-to-many, many-to-one, many-to-many, inverse and text-blobbed relationships on top of the sqlite-net library.</description>
+    <releaseNotes>First release including async operations</releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>sqlite sqlite-net net extensions orm cascade recursive</tags>
+    <dependencies>
+      <dependency id="SQLite.Net.Async-PCL" version="2.5.1" />
+      <dependency id="SQLiteNetExtensions" version="1.2.3" />
+    </dependencies>
+  </metadata>
+
+  <files>
+    <file src="SQLiteNetExtensionsAsync-PCL/bin/Release/SQLiteNetExtensionsAsync.dll" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
+    <file src="SQLiteNetExtensions/**/*.cs" target="src" />
+  </files>
+
+</package>

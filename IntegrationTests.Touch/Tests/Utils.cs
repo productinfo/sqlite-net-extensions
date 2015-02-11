@@ -55,10 +55,10 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         #if PCL
-        static readonly SQLiteConnectionString connectionString = new SQLiteConnectionString(DatabaseFilePath, false);
-        static readonly SQLiteAsyncConnection asyncConnection = new SQLiteAsyncConnection(() => new SQLiteConnectionWithLock(new SQLitePlatformIOS(), connectionString));
         public static SQLiteAsyncConnection CreateAsyncConnection() {
-            return asyncConnection;
+            var connectionString = new SQLiteConnectionString(DatabaseFilePath, false);
+            var connectionWithLock = new SQLiteConnectionWithLock(new SQLitePlatformIOS(), connectionString);
+            return new SQLiteAsyncConnection(() => connectionWithLock);
         }
         #endif
     }

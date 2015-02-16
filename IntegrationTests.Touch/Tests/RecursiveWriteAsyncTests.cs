@@ -2,31 +2,25 @@
 using NUnit.Framework;
 using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.IntegrationTests;
-using SQLiteNetExtensions.Extensions;
+using SQLiteNetExtensionsAsync.Extensions;
 using System.Linq;
 using System.Collections.Generic;
 
-#if PCL
-using SQLite.Net;
 using SQLite.Net.Attributes;
-#else
-using Cirrious.MvvmCross.Community.Plugins.Sqlite;
-using Community.SQLite;
-#endif
 
 namespace SQLiteNetExtensions.IntegrationTests
 {
     [TestFixture]
-    public class RecursiveWriteTests
+    public class RecursiveWriteAsyncTests
     {
-        #region OneToOneRecursiveInsert
+        #region OneToOneRecursiveInsertAsync
         public class Person {
             [PrimaryKey, AutoIncrement]
             public int Identifier { get; set; }
-            
+
             public string Name { get; set; }
             public string Surname { get; set; }
-            
+
             [OneToOne(CascadeOperations = CascadeOperation.CascadeInsert)]
             public Passport Passport { get; set; }
         }
@@ -45,12 +39,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsert() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Passport>();
-            conn.DropTable<Person>();
-            conn.CreateTable<Passport>();
-            conn.CreateTable<Person>();
+        public async void TestOneToOneRecursiveInsertAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Passport>();
+            await conn.DropTableAsync<Person>();
+            await conn.CreateTableAsync<Passport>();
+            await conn.CreateTableAsync<Person>();
 
             var person = new Person
             {
@@ -62,10 +56,10 @@ namespace SQLiteNetExtensions.IntegrationTests
             };
 
             // Insert the elements in the database recursively
-            conn.InsertWithChildren(person, recursive: true);
+            await conn.InsertWithChildrenAsync(person, recursive: true);
 
-            var obtainedPerson = conn.Find<Person>(person.Identifier);
-            var obtainedPassport = conn.Find<Passport>(person.Passport.Id);
+            var obtainedPerson = await conn.FindAsync<Person>(person.Identifier);
+            var obtainedPassport = await conn.FindAsync<Passport>(person.Passport.Id);
 
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPassport);
@@ -76,12 +70,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsertOrReplace() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Passport>();
-            conn.DropTable<Person>();
-            conn.CreateTable<Passport>();
-            conn.CreateTable<Person>();
+        public async void TestOneToOneRecursiveInsertOrReplaceAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Passport>();
+            await conn.DropTableAsync<Person>();
+            await conn.CreateTableAsync<Passport>();
+            await conn.CreateTableAsync<Person>();
 
             var person = new Person
             {
@@ -93,10 +87,10 @@ namespace SQLiteNetExtensions.IntegrationTests
             };
 
             // Insert the elements in the database recursively
-            conn.InsertOrReplaceWithChildren(person, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(person, recursive: true);
 
-            var obtainedPerson = conn.Find<Person>(person.Identifier);
-            var obtainedPassport = conn.Find<Passport>(person.Passport.Id);
+            var obtainedPerson = await conn.FindAsync<Person>(person.Identifier);
+            var obtainedPassport = await conn.FindAsync<Passport>(person.Passport.Id);
 
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPassport);
@@ -119,10 +113,10 @@ namespace SQLiteNetExtensions.IntegrationTests
             person = newPerson;
 
             // Replace the elements in the database recursively
-            conn.InsertOrReplaceWithChildren(person, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(person, recursive: true);
 
-            obtainedPerson = conn.Find<Person>(person.Identifier);
-            obtainedPassport = conn.Find<Passport>(person.Passport.Id);
+            obtainedPerson = await conn.FindAsync<Person>(person.Identifier);
+            obtainedPassport = await conn.FindAsync<Passport>(person.Passport.Id);
 
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPassport);
@@ -133,14 +127,14 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region OneToOneRecursiveInsertGuid
+        #region OneToOneRecursiveInsertGuidAsync
         public class PersonGuid {
             [PrimaryKey]
             public Guid Identifier { get; set; }
-            
+
             public string Name { get; set; }
             public string Surname { get; set; }
-            
+
             [OneToOne(CascadeOperations = CascadeOperation.CascadeInsert)]
             public PassportGuid Passport { get; set; }
         }
@@ -159,12 +153,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsertGuid() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<PassportGuid>();
-            conn.DropTable<PersonGuid>();
-            conn.CreateTable<PassportGuid>();
-            conn.CreateTable<PersonGuid>();
+        public async void TestOneToOneRecursiveInsertGuidAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<PassportGuid>();
+            await conn.DropTableAsync<PersonGuid>();
+            await conn.CreateTableAsync<PassportGuid>();
+            await conn.CreateTableAsync<PersonGuid>();
 
             var person = new PersonGuid
             {
@@ -178,10 +172,10 @@ namespace SQLiteNetExtensions.IntegrationTests
             };
 
             // Insert the elements in the database recursively
-            conn.InsertWithChildren(person, recursive: true);
+            await conn.InsertWithChildrenAsync(person, recursive: true);
 
-            var obtainedPerson = conn.Find<PersonGuid>(person.Identifier);
-            var obtainedPassport = conn.Find<PassportGuid>(person.Passport.Id);
+            var obtainedPerson = await conn.FindAsync<PersonGuid>(person.Identifier);
+            var obtainedPassport = await conn.FindAsync<PassportGuid>(person.Passport.Id);
 
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPassport);
@@ -192,12 +186,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsertOrReplaceGuid() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<PassportGuid>();
-            conn.DropTable<PersonGuid>();
-            conn.CreateTable<PassportGuid>();
-            conn.CreateTable<PersonGuid>();
+        public async void TestOneToOneRecursiveInsertOrReplaceGuidAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<PassportGuid>();
+            await conn.DropTableAsync<PersonGuid>();
+            await conn.CreateTableAsync<PassportGuid>();
+            await conn.CreateTableAsync<PersonGuid>();
 
             var person = new PersonGuid
             {
@@ -211,10 +205,10 @@ namespace SQLiteNetExtensions.IntegrationTests
             };
 
             // Insert the elements in the database recursively
-            conn.InsertOrReplaceWithChildren(person, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(person, recursive: true);
 
-            var obtainedPerson = conn.Find<PersonGuid>(person.Identifier);
-            var obtainedPassport = conn.Find<PassportGuid>(person.Passport.Id);
+            var obtainedPerson = await conn.FindAsync<PersonGuid>(person.Identifier);
+            var obtainedPassport = await conn.FindAsync<PassportGuid>(person.Passport.Id);
 
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPassport);
@@ -237,10 +231,10 @@ namespace SQLiteNetExtensions.IntegrationTests
             person = newPerson;
 
             // Replace the elements in the database recursively
-            conn.InsertOrReplaceWithChildren(person, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(person, recursive: true);
 
-            obtainedPerson = conn.Find<PersonGuid>(person.Identifier);
-            obtainedPassport = conn.Find<PassportGuid>(person.Passport.Id);
+            obtainedPerson = await conn.FindAsync<PersonGuid>(person.Identifier);
+            obtainedPassport = await conn.FindAsync<PassportGuid>(person.Passport.Id);
 
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPassport);
@@ -251,7 +245,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region OneToManyRecursiveInsert
+        #region OneToManyRecursiveInsertAsync
         public class Customer {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -278,12 +272,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsert() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Customer>();
-            conn.DropTable<Order>();
-            conn.CreateTable<Customer>();
-            conn.CreateTable<Order>();
+        public async void TestOneToManyRecursiveInsertAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Customer>();
+            await conn.DropTableAsync<Order>();
+            await conn.CreateTableAsync<Customer>();
+            await conn.CreateTableAsync<Order>();
 
             var customer = new Customer
             { 
@@ -298,11 +292,11 @@ namespace SQLiteNetExtensions.IntegrationTests
                 }
             };
 
-            conn.InsertWithChildren(customer, recursive: true);
+            await conn.InsertWithChildrenAsync(customer, recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -322,12 +316,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsertOrReplace() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Customer>();
-            conn.DropTable<Order>();
-            conn.CreateTable<Customer>();
-            conn.CreateTable<Order>();
+        public async void TestOneToManyRecursiveInsertOrReplaceAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Customer>();
+            await conn.DropTableAsync<Order>();
+            await conn.CreateTableAsync<Customer>();
+            await conn.CreateTableAsync<Order>();
 
             var customer = new Customer
             { 
@@ -342,11 +336,11 @@ namespace SQLiteNetExtensions.IntegrationTests
                 }
             };
 
-            conn.InsertOrReplaceWithChildren(customer);
+            await conn.InsertOrReplaceWithChildrenAsync(customer);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -380,11 +374,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             customer = newCustomer;
 
-            conn.InsertOrReplaceWithChildren(customer, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer, recursive: true);
 
             expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -404,7 +398,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region OneToManyRecursiveInsertGuid
+        #region OneToManyRecursiveInsertGuidAsync
         public class CustomerGuid {
             [PrimaryKey]
             public Guid Id { get; set; }
@@ -431,12 +425,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsertGuid() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<CustomerGuid>();
-            conn.DropTable<OrderGuid>();
-            conn.CreateTable<CustomerGuid>();
-            conn.CreateTable<OrderGuid>();
+        public async void TestOneToManyRecursiveInsertGuidAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<CustomerGuid>();
+            await conn.DropTableAsync<OrderGuid>();
+            await conn.CreateTableAsync<CustomerGuid>();
+            await conn.CreateTableAsync<OrderGuid>();
 
             var customer = new CustomerGuid
             { 
@@ -452,11 +446,11 @@ namespace SQLiteNetExtensions.IntegrationTests
                 }
             };
 
-            conn.InsertWithChildren(customer, recursive: true);
+            await conn.InsertWithChildrenAsync(customer, recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<CustomerGuid>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<CustomerGuid>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -476,12 +470,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsertOrReplaceGuid() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<CustomerGuid>();
-            conn.DropTable<OrderGuid>();
-            conn.CreateTable<CustomerGuid>();
-            conn.CreateTable<OrderGuid>();
+        public async void TestOneToManyRecursiveInsertOrReplaceGuidAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<CustomerGuid>();
+            await conn.DropTableAsync<OrderGuid>();
+            await conn.CreateTableAsync<CustomerGuid>();
+            await conn.CreateTableAsync<OrderGuid>();
 
             var customer = new CustomerGuid
             { 
@@ -497,11 +491,11 @@ namespace SQLiteNetExtensions.IntegrationTests
                 }
             };
 
-            conn.InsertOrReplaceWithChildren(customer, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer, recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<CustomerGuid>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<CustomerGuid>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -535,11 +529,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             customer = newCustomer;
 
-            conn.InsertOrReplaceWithChildren(customer, recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer, recursive: true);
 
             expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            obtainedCustomer = conn.GetWithChildren<CustomerGuid>(customer.Id, recursive: true);
+            obtainedCustomer = await conn.GetWithChildrenAsync<CustomerGuid>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -559,18 +553,18 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region ManyToOneRecursiveInsert
+        #region ManyToOneRecursiveInsertAsync
         /// <summary>
         /// This test will validate the same scenario than TestOneToManyRecursiveInsert but inserting
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsert() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Customer>();
-            conn.DropTable<Order>();
-            conn.CreateTable<Customer>();
-            conn.CreateTable<Order>();
+        public async void TestManyToOneRecursiveInsertAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Customer>();
+            await conn.DropTableAsync<Order>();
+            await conn.CreateTableAsync<Customer>();
+            await conn.CreateTableAsync<Order>();
 
             var customer = new Customer
             { 
@@ -587,11 +581,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             // Insert any of the orders instead of the customer
             customer.Orders[0].Customer = customer;
-            conn.InsertWithChildren(customer.Orders[0], recursive: true);
+            await conn.InsertWithChildrenAsync(customer.Orders[0], recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -615,12 +609,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsertOrReplace() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Customer>();
-            conn.DropTable<Order>();
-            conn.CreateTable<Customer>();
-            conn.CreateTable<Order>();
+        public async void TestManyToOneRecursiveInsertOrReplaceAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Customer>();
+            await conn.DropTableAsync<Order>();
+            await conn.CreateTableAsync<Customer>();
+            await conn.CreateTableAsync<Order>();
 
             var customer = new Customer
             { 
@@ -637,11 +631,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             // Insert any of the orders instead of the customer
             customer.Orders[0].Customer = customer;
-            conn.InsertOrReplaceWithChildren(customer.Orders[0], recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer.Orders[0], recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -677,11 +671,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             // Insert any of the orders instead of the customer
             customer.Orders[0].Customer = customer; // Required to complete the entity tree
-            conn.InsertOrReplaceWithChildren(customer.Orders[0], recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer.Orders[0], recursive: true);
 
             expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -701,18 +695,18 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region ManyToOneRecursiveInsertGuid
+        #region ManyToOneRecursiveInsertGuidAsync
         /// <summary>
         /// This test will validate the same scenario than TestOneToManyRecursiveInsertGuid but inserting
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsertGuid() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<CustomerGuid>();
-            conn.DropTable<OrderGuid>();
-            conn.CreateTable<CustomerGuid>();
-            conn.CreateTable<OrderGuid>();
+        public async void TestManyToOneRecursiveInsertGuidAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<CustomerGuid>();
+            await conn.DropTableAsync<OrderGuid>();
+            await conn.CreateTableAsync<CustomerGuid>();
+            await conn.CreateTableAsync<OrderGuid>();
 
             var customer = new CustomerGuid
             { 
@@ -730,11 +724,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             // Insert any of the orders instead of the customer
             customer.Orders[0].Customer = customer; // Required to complete the entity tree
-            conn.InsertWithChildren(customer.Orders[0], recursive: true);
+            await conn.InsertWithChildrenAsync(customer.Orders[0], recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<CustomerGuid>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<CustomerGuid>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -758,12 +752,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsertOrReplaceGuid() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<CustomerGuid>();
-            conn.DropTable<OrderGuid>();
-            conn.CreateTable<CustomerGuid>();
-            conn.CreateTable<OrderGuid>();
+        public async void TestManyToOneRecursiveInsertOrReplaceGuidAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<CustomerGuid>();
+            await conn.DropTableAsync<OrderGuid>();
+            await conn.CreateTableAsync<CustomerGuid>();
+            await conn.CreateTableAsync<OrderGuid>();
 
             var customer = new CustomerGuid
             { 
@@ -781,11 +775,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             // Insert any of the orders instead of the customer
             customer.Orders[0].Customer = customer; // Required to complete the entity tree
-            conn.InsertOrReplaceWithChildren(customer.Orders[0], recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer.Orders[0], recursive: true);
 
             var expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<CustomerGuid>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<CustomerGuid>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -821,11 +815,11 @@ namespace SQLiteNetExtensions.IntegrationTests
 
             // Insert any of the orders instead of the customer
             customer.Orders[0].Customer = customer; // Required to complete the entity tree
-            conn.InsertOrReplaceWithChildren(customer.Orders[0], recursive: true);
+            await conn.InsertOrReplaceWithChildrenAsync(customer.Orders[0], recursive: true);
 
             expectedOrders = customer.Orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            obtainedCustomer = conn.GetWithChildren<CustomerGuid>(customer.Id, recursive: true);
+            obtainedCustomer = await conn.GetWithChildrenAsync<CustomerGuid>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -845,7 +839,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region ManyToManyCascadeWithSameClassRelationship
+        #region ManyToManyCascadeWithSameClassRelationshipAsync
         public class TwitterUser {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -882,7 +876,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestManyToManyRecursiveInsertWithSameClassRelationship() {
+        public async void TestManyToManyRecursiveInsertWithSameClassRelationshipAsync() {
             // We will configure the following scenario
             // 'John' follows 'Peter' and 'Thomas'
             // 'Thomas' follows 'John'
@@ -909,11 +903,11 @@ namespace SQLiteNetExtensions.IntegrationTests
             //
             // (*) -> Entity already inserted in a previous operation. Stop cascade insert
 
-            var conn = Utils.CreateConnection();
-            conn.DropTable<TwitterUser>();
-            conn.DropTable<FollowerLeaderRelationshipTable>();
-            conn.CreateTable<TwitterUser>();
-            conn.CreateTable<FollowerLeaderRelationshipTable>();
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<TwitterUser>();
+            await conn.DropTableAsync<FollowerLeaderRelationshipTable>();
+            await conn.CreateTableAsync<TwitterUser>();
+            await conn.CreateTableAsync<FollowerLeaderRelationshipTable>();
 
             var john = new TwitterUser { Name = "John" };
             var thomas = new TwitterUser { Name = "Thomas" };
@@ -938,7 +932,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             var allUsers = new []{ john, thomas, will, claire, jaime, mark, martha, anthony, peter };
 
             // Only need to insert Jaime and Claire, the other users are contained in these trees
-            conn.InsertAllWithChildren(new []{ jaime, claire }, recursive: true);
+            await conn.InsertAllWithChildrenAsync(new []{ jaime, claire }, recursive: true);
 
             Action<TwitterUser, TwitterUser> checkUser = (expected, obtained) =>
             {
@@ -949,7 +943,7 @@ namespace SQLiteNetExtensions.IntegrationTests
                 Assert.That(obtained.Followers, Is.EquivalentTo(followers));
             };
 
-            var obtainedThomas = conn.GetWithChildren<TwitterUser>(thomas.Id, recursive: true);
+            var obtainedThomas = await conn.GetWithChildrenAsync<TwitterUser>(thomas.Id, recursive: true);
             checkUser(thomas, obtainedThomas);
 
             var obtainedJohn = obtainedThomas.FollowingUsers.FirstOrDefault(u => u.Id == john.Id);
@@ -973,7 +967,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestManyToManyRecursiveDeleteWithSameClassRelationship() {
+        public async void TestManyToManyRecursiveDeleteWithSameClassRelationshipAsync() {
             // We will configure the following scenario
             // 'John' follows 'Peter' and 'Thomas'
             // 'Thomas' follows 'John'
@@ -1000,11 +994,11 @@ namespace SQLiteNetExtensions.IntegrationTests
             //
             // (*) -> Entity already marked for deletion in a previous operation. Stop cascade delete
 
-            var conn = Utils.CreateConnection();
-            conn.DropTable<TwitterUser>();
-            conn.DropTable<FollowerLeaderRelationshipTable>();
-            conn.CreateTable<TwitterUser>();
-            conn.CreateTable<FollowerLeaderRelationshipTable>();
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<TwitterUser>();
+            await conn.DropTableAsync<FollowerLeaderRelationshipTable>();
+            await conn.CreateTableAsync<TwitterUser>();
+            await conn.CreateTableAsync<FollowerLeaderRelationshipTable>();
 
             var john = new TwitterUser { Name = "John" };
             var thomas = new TwitterUser { Name = "Thomas" };
@@ -1029,20 +1023,20 @@ namespace SQLiteNetExtensions.IntegrationTests
             var allUsers = new []{ john, thomas, will, claire, jaime, mark, martha, anthony, peter };
 
             // Inserts all the objects in the database recursively
-            conn.InsertAllWithChildren(allUsers, recursive: true);
+            await conn.InsertAllWithChildrenAsync(allUsers, recursive: true);
 
             // Deletes the entity tree starting at 'Thomas' recursively
-            conn.Delete(thomas, recursive: true);
+            await conn.DeleteAsync(thomas, recursive: true);
 
             var expectedUsers = new []{ jaime, mark, claire, will };
-            var existingUsers = conn.Table<TwitterUser>().ToList();
+            var existingUsers = await conn.Table<TwitterUser>().ToListAsync();
 
             // Check that the users have been deleted and only the users outside the 'Thomas' tree still exist
             Assert.That(existingUsers, Is.EquivalentTo(expectedUsers));
         }
         #endregion
 
-        #region InsertTextBlobPropertiesRecursive
+        #region InsertTextBlobPropertiesRecursiveAsync
         class Teacher {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -1075,12 +1069,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestInsertTextBlobPropertiesRecursive() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Student>();
-            conn.DropTable<Teacher>();
-            conn.CreateTable<Student>();
-            conn.CreateTable<Teacher>();
+        public async void TestInsertTextBlobPropertiesRecursiveAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Student>();
+            await conn.DropTableAsync<Teacher>();
+            await conn.CreateTableAsync<Student>();
+            await conn.CreateTableAsync<Teacher>();
 
             var teacher = new Teacher {
                 Name = "John Smith",
@@ -1109,10 +1103,10 @@ namespace SQLiteNetExtensions.IntegrationTests
                 }
             };
 
-            conn.InsertWithChildren(teacher, recursive: true);
+            await conn.InsertWithChildrenAsync(teacher, recursive: true);
 
             foreach (var student in teacher.Students) {
-                var dbStudent = conn.GetWithChildren<Student>(student.Id);
+                var dbStudent = await conn.GetWithChildrenAsync<Student>(student.Id);
                 Assert.NotNull(dbStudent);
                 Assert.NotNull(dbStudent.Address);
                 Assert.AreEqual(student.Address.Street, dbStudent.Address.Street);

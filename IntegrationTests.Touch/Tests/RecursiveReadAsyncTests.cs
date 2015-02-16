@@ -2,24 +2,19 @@
 using NUnit.Framework;
 using SQLiteNetExtensions.IntegrationTests;
 using SQLiteNetExtensions.Attributes;
-using SQLiteNetExtensions.Extensions;
+using SQLiteNetExtensionsAsync.Extensions;
 using System.Linq;
 using System.Collections.Generic;
 
-#if PCL
-using SQLite.Net;
 using SQLite.Net.Attributes;
-#else
-using Cirrious.MvvmCross.Community.Plugins.Sqlite;
-using Community.SQLite;
-#endif
+
 
 namespace SQLiteNetExtensions.IntegrationTests
 {
     [TestFixture]
-    public class RecursiveReadTests
+    public class RecursiveReadAsyncTests
     {
-        #region TestOneToOneCascadeWithInverse
+        #region TestOneToOneCascadeWithInverseAsync
         public class PassportWithForeignKey {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -45,21 +40,21 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToOneCascadeWithInverse() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<PassportWithForeignKey>();
-            conn.DropTable<PersonNoForeignKey>();
-            conn.CreateTable<PassportWithForeignKey>();
-            conn.CreateTable<PersonNoForeignKey>();
+        public async void TestOneToOneCascadeWithInverseAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<PassportWithForeignKey>();
+            await conn.DropTableAsync<PersonNoForeignKey>();
+            await conn.CreateTableAsync<PassportWithForeignKey>();
+            await conn.CreateTableAsync<PersonNoForeignKey>();
 
             var person = new PersonNoForeignKey { Name = "John", Surname = "Smith" };
-            conn.Insert(person);
+            await conn.InsertAsync(person);
 
             var passport = new PassportWithForeignKey { PassportNumber = "JS12345678", Owner = person };
-            conn.Insert(passport);
-            conn.UpdateWithChildren(passport);
+            await conn.InsertAsync(passport);
+            await conn.UpdateWithChildrenAsync(passport);
 
-            var obtainedPerson = conn.GetWithChildren<PersonNoForeignKey>(person.Identifier, recursive: true);
+            var obtainedPerson = await conn.GetWithChildrenAsync<PersonNoForeignKey>(person.Identifier, recursive: true);
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPerson.Passport);
             Assert.NotNull(obtainedPerson.Passport.Owner, "Circular reference should've been solved");
@@ -68,7 +63,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             Assert.AreEqual(person.Identifier, obtainedPerson.Identifier);
             Assert.AreEqual(passport.Id, obtainedPerson.Passport.Id);
 
-            var obtainedPassport = conn.GetWithChildren<PassportWithForeignKey>(passport.Id, recursive: true);
+            var obtainedPassport = await conn.GetWithChildrenAsync<PassportWithForeignKey>(passport.Id, recursive: true);
             Assert.NotNull(obtainedPassport);
             Assert.NotNull(obtainedPassport.Owner);
             Assert.NotNull(obtainedPassport.Owner.Passport, "Circular reference should've been solved");
@@ -82,21 +77,21 @@ namespace SQLiteNetExtensions.IntegrationTests
         /// Same test that TestOneToOneCascadeWithInverse but fetching the passport instead of the person
         /// </summary>
         [Test]
-        public void TestOneToOneCascadeWithInverseReversed() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<PassportWithForeignKey>();
-            conn.DropTable<PersonNoForeignKey>();
-            conn.CreateTable<PassportWithForeignKey>();
-            conn.CreateTable<PersonNoForeignKey>();
+        public async void TestOneToOneCascadeWithInverseReversedAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<PassportWithForeignKey>();
+            await conn.DropTableAsync<PersonNoForeignKey>();
+            await conn.CreateTableAsync<PassportWithForeignKey>();
+            await conn.CreateTableAsync<PersonNoForeignKey>();
 
             var person = new PersonNoForeignKey { Name = "John", Surname = "Smith" };
-            conn.Insert(person);
+            await conn.InsertAsync(person);
 
             var passport = new PassportWithForeignKey { PassportNumber = "JS12345678", Owner = person };
-            conn.Insert(passport);
-            conn.UpdateWithChildren(passport);
+            await conn.InsertAsync(passport);
+            await conn.UpdateWithChildrenAsync(passport);
 
-            var obtainedPassport = conn.GetWithChildren<PassportWithForeignKey>(passport.Id, recursive: true);
+            var obtainedPassport = await conn.GetWithChildrenAsync<PassportWithForeignKey>(passport.Id, recursive: true);
             Assert.NotNull(obtainedPassport);
             Assert.NotNull(obtainedPassport.Owner);
             Assert.NotNull(obtainedPassport.Owner.Passport, "Circular reference should've been solved");
@@ -107,7 +102,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region TestOneToOneCascadeWithInverseDoubleForeignKey
+        #region TestOneToOneCascadeWithInverseDoubleForeignKeyAsync
         public class PassportWithForeignKeyDouble {
             [PrimaryKey]
             public int Id { get; set; }
@@ -136,21 +131,21 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToOneCascadeWithInverseDoubleForeignKey() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<PassportWithForeignKeyDouble>();
-            conn.DropTable<PersonWithForeignKey>();
-            conn.CreateTable<PassportWithForeignKeyDouble>();
-            conn.CreateTable<PersonWithForeignKey>();
+        public async void TestOneToOneCascadeWithInverseDoubleForeignKey() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<PassportWithForeignKeyDouble>();
+            await conn.DropTableAsync<PersonWithForeignKey>();
+            await conn.CreateTableAsync<PassportWithForeignKeyDouble>();
+            await conn.CreateTableAsync<PersonWithForeignKey>();
 
             var person = new PersonWithForeignKey { Name = "John", Surname = "Smith" };
-            conn.Insert(person);
+            await conn.InsertAsync(person);
 
             var passport = new PassportWithForeignKeyDouble { PassportNumber = "JS12345678", Owner = person };
-            conn.Insert(passport);
-            conn.UpdateWithChildren(passport);
+            await conn.InsertAsync(passport);
+            await conn.UpdateWithChildrenAsync(passport);
 
-            var obtainedPerson = conn.GetWithChildren<PersonWithForeignKey>(person.Identifier, recursive: true);
+            var obtainedPerson = await conn.GetWithChildrenAsync<PersonWithForeignKey>(person.Identifier, recursive: true);
             Assert.NotNull(obtainedPerson);
             Assert.NotNull(obtainedPerson.Passport);
             Assert.NotNull(obtainedPerson.Passport.Owner, "Circular reference should've been solved");
@@ -164,21 +159,21 @@ namespace SQLiteNetExtensions.IntegrationTests
         /// Same test that TestOneToOneCascadeWithInverseDoubleForeignKey but fetching the passport instead of the person
         /// </summary>
         [Test]
-        public void TestOneToOneCascadeWithInverseDoubleForeignKeyReversed() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<PassportWithForeignKeyDouble>();
-            conn.DropTable<PersonWithForeignKey>();
-            conn.CreateTable<PassportWithForeignKeyDouble>();
-            conn.CreateTable<PersonWithForeignKey>();
+        public async void TestOneToOneCascadeWithInverseDoubleForeignKeyReversed() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<PassportWithForeignKeyDouble>();
+            await conn.DropTableAsync<PersonWithForeignKey>();
+            await conn.CreateTableAsync<PassportWithForeignKeyDouble>();
+            await conn.CreateTableAsync<PersonWithForeignKey>();
 
             var person = new PersonWithForeignKey { Name = "John", Surname = "Smith" };
-            conn.Insert(person);
+            await conn.InsertAsync(person);
 
             var passport = new PassportWithForeignKeyDouble { PassportNumber = "JS12345678", Owner = person };
-            conn.Insert(passport);
-            conn.UpdateWithChildren(passport);
+            await conn.InsertAsync(passport);
+            await conn.UpdateWithChildrenAsync(passport);
 
-            var obtainedPassport = conn.GetWithChildren<PassportWithForeignKeyDouble>(passport.Id, recursive: true);
+            var obtainedPassport = await conn.GetWithChildrenAsync<PassportWithForeignKeyDouble>(passport.Id, recursive: true);
             Assert.NotNull(obtainedPassport);
             Assert.NotNull(obtainedPassport.Owner);
             Assert.NotNull(obtainedPassport.Owner.Passport, "Circular reference should've been solved");
@@ -190,7 +185,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         #endregion
 
 
-        #region OneToManyCascadeWithInverse
+        #region OneToManyCascadeWithInverseAsync
         public class Customer {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -217,12 +212,12 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestOneToManyCascadeWithInverse() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Customer>();
-            conn.DropTable<Order>();
-            conn.CreateTable<Customer>();
-            conn.CreateTable<Order>();
+        public async void TestOneToManyCascadeWithInverseAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Customer>();
+            await conn.DropTableAsync<Order>();
+            await conn.CreateTableAsync<Customer>();
+            await conn.CreateTableAsync<Order>();
 
             var customer = new Customer { Name = "John Smith" };
             var orders = new []
@@ -234,15 +229,15 @@ namespace SQLiteNetExtensions.IntegrationTests
                 new Order { Amount = 98f, Date = new DateTime(2014, 02, 1, 22, 31, 7) }
             };
 
-            conn.Insert(customer);
-            conn.InsertAll(orders);
+            await conn.InsertAsync(customer);
+            await conn.InsertAllAsync(orders);
 
             customer.Orders = orders;
-            conn.UpdateWithChildren(customer);
+            await conn.UpdateWithChildrenAsync(customer);
 
             var expectedOrders = orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedCustomer = conn.GetWithChildren<Customer>(customer.Id, recursive: true);
+            var obtainedCustomer = await conn.GetWithChildrenAsync<Customer>(customer.Id, recursive: true);
             Assert.NotNull(obtainedCustomer);
             Assert.NotNull(obtainedCustomer.Orders);
             Assert.AreEqual(expectedOrders.Count, obtainedCustomer.Orders.Length);
@@ -261,18 +256,18 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region ManyToOneCascadeWithInverse
+        #region ManyToOneCascadeWithInverseAsync
         /// <summary>
         /// In this test we will execute the same test that we did in TestOneToManyCascadeWithInverse but fetching
         /// one of the orders
         /// </summary>
         [Test]
-        public void TestManyToOneCascadeWithInverse() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Customer>();
-            conn.DropTable<Order>();
-            conn.CreateTable<Customer>();
-            conn.CreateTable<Order>();
+        public async void TestManyToOneCascadeWithInverseAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Customer>();
+            await conn.DropTableAsync<Order>();
+            await conn.CreateTableAsync<Customer>();
+            await conn.CreateTableAsync<Order>();
 
             var customer = new Customer { Name = "John Smith" };
             var orders = new []
@@ -284,16 +279,16 @@ namespace SQLiteNetExtensions.IntegrationTests
                 new Order { Amount = 98f, Date = new DateTime(2014, 02, 1, 22, 31, 7) }
             };
 
-            conn.Insert(customer);
-            conn.InsertAll(orders);
+            await conn.InsertAsync(customer);
+            await conn.InsertAllAsync(orders);
 
             customer.Orders = orders;
-            conn.UpdateWithChildren(customer);
+            await conn.UpdateWithChildrenAsync(customer);
 
             var orderToFetch = orders[2];
             var expectedOrders = orders.OrderBy(o => o.Date).ToDictionary(o => o.Id);
 
-            var obtainedOrder = conn.GetWithChildren<Order>(orderToFetch.Id, recursive: true);
+            var obtainedOrder = await conn.GetWithChildrenAsync<Order>(orderToFetch.Id, recursive: true);
             Assert.NotNull(obtainedOrder);
             Assert.AreEqual(orderToFetch.Date, obtainedOrder.Date);
             Assert.AreEqual(orderToFetch.Amount, obtainedOrder.Amount, 0.0001);
@@ -317,7 +312,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region ManyToManyCascadeWithSameClassRelationship
+        #region ManyToManyCascadeWithSameClassRelationshipAsync
         public class TwitterUser {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -350,7 +345,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestManyToManyCascadeWithSameClassRelationship() {
+        public async void TestManyToManyCascadeWithSameClassRelationshipAsync() {
             // We will configure the following scenario
             // 'John' follows 'Peter' and 'Thomas'
             // 'Thomas' follows 'John'
@@ -383,11 +378,11 @@ namespace SQLiteNetExtensions.IntegrationTests
             //
             // (*) -> Entity already loaded in a previous operation. Stop cascade loading
 
-            var conn = Utils.CreateConnection();
-            conn.DropTable<TwitterUser>();
-            conn.DropTable<FollowerLeaderRelationshipTable>();
-            conn.CreateTable<TwitterUser>();
-            conn.CreateTable<FollowerLeaderRelationshipTable>();
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<TwitterUser>();
+            await conn.DropTableAsync<FollowerLeaderRelationshipTable>();
+            await conn.CreateTableAsync<TwitterUser>();
+            await conn.CreateTableAsync<FollowerLeaderRelationshipTable>();
 
             var john = new TwitterUser { Name = "John" };
             var thomas = new TwitterUser { Name = "Thomas" };
@@ -400,7 +395,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             var peter = new TwitterUser { Name = "Peter" };
 
             var allUsers = new []{ john, thomas, will, claire, jaime, mark, martha, anthony, peter };
-            conn.InsertAll(allUsers);
+            await conn.InsertAllAsync(allUsers);
 
             john.FollowingUsers = new List<TwitterUser>{ peter, thomas };
             thomas.FollowingUsers = new List<TwitterUser>{ john };
@@ -413,7 +408,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             peter.FollowingUsers = new List<TwitterUser>{ martha };
 
             foreach (var user in allUsers) {
-                conn.UpdateWithChildren(user);
+                await conn.UpdateWithChildrenAsync(user);
             }
 
             Action<TwitterUser, TwitterUser> checkUser = (expected, obtained) =>
@@ -425,7 +420,7 @@ namespace SQLiteNetExtensions.IntegrationTests
                 Assert.That(obtained.Followers, Is.EquivalentTo(followers));
             };
 
-            var obtainedThomas = conn.GetWithChildren<TwitterUser>(thomas.Id, recursive: true);
+            var obtainedThomas = await conn.GetWithChildrenAsync<TwitterUser>(thomas.Id, recursive: true);
             checkUser(thomas, obtainedThomas);
 
             var obtainedJohn = obtainedThomas.FollowingUsers.FirstOrDefault(u => u.Id == john.Id);
@@ -449,7 +444,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
         #endregion
 
-        #region InsertTextBlobPropertiesRecursive
+        #region InsertTextBlobPropertiesRecursiveAsync
         class Teacher {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -482,17 +477,17 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
-        public void TestInsertTextBlobPropertiesRecursive() {
-            var conn = Utils.CreateConnection();
-            conn.DropTable<Student>();
-            conn.DropTable<Teacher>();
-            conn.CreateTable<Student>();
-            conn.CreateTable<Teacher>();
+        public async void TestInsertTextBlobPropertiesRecursiveAsync() {
+            var conn = Utils.CreateAsyncConnection();
+            await conn.DropTableAsync<Student>();
+            await conn.DropTableAsync<Teacher>();
+            await conn.CreateTableAsync<Student>();
+            await conn.CreateTableAsync<Teacher>();
 
             var teacher = new Teacher {
                 Name = "John Smith"
             };
-            conn.Insert(teacher);
+            await conn.InsertAsync(teacher);
 
             var students = new List<Student> {
                 new Student {
@@ -520,10 +515,10 @@ namespace SQLiteNetExtensions.IntegrationTests
                     Teacher = teacher
                 }
             };
-            conn.InsertAllWithChildren(students);
+            await conn.InsertAllWithChildrenAsync(students);
 
 
-            var dbTeacher = conn.GetWithChildren<Teacher>(teacher.Id, recursive: true);
+            var dbTeacher = await conn.GetWithChildrenAsync<Teacher>(teacher.Id, recursive: true);
 
             foreach (var student in students) {
                 var dbStudent = dbTeacher.Students.Find(s => s.Id == student.Id);

@@ -19,15 +19,16 @@ Complementarily `UpdateWithChildren` looks at the relationships that you have se
 You can update foreign keys manually if you feel more comfortable handling some relationships by yourself and let the SQLite-Net extensions handle the rest for you. You can even add or remove SQLite-Net extensions of any project at any time without changes to your database.
 
 ## Installation
-The easiest way of installing the library in your project is adding a reference to [_SQLiteNetExtensions_ NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions/).
+The easiest way of installing the library in your project is adding a reference to [_SQLiteNetExtensions_ NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions/) or [_SQLiteNetExtensions.Async_ NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions.Async/) for asynchronous operations.
 
 SQLite-Net Extensions is provided in three different flavours, depending on the SQLite-Net version that you are using:
 
 - [SQLite-Net PCL](https://github.com/oysteinkrog/SQLite.Net-PCL) version (also as [NuGet package](https://www.nuget.org/packages/SQLite.Net-PCL/))
+- [SQLite.Net.Async-PCL](https://github.com/oysteinkrog/SQLite.Net-PCL) version (also as [NuGet package](https://www.nuget.org/packages/SQLite.Net.Async-PCL/))
 - [MvvmCross SQLite Community](https://github.com/MvvmCross/MvvmCross-SQLite PCL) version (also as [NuGet package](https://www.nuget.org/packages/MvvmCross.Community.Plugin.Sqlite/))
 - [SQLite-Net standard](https://github.com/praeclarum/sqlite-net) version (also as [NuGet package](https://www.nuget.org/packages/sqlite-net))
 
-Currently the recommended version is the official SQLite-Net PCL NuGet package. If you are using this SQLite-Net version, you can simply add a reference to [_SQLiteNetExtensions_ NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions/).
+Currently the recommended version is the official SQLite-Net PCL NuGet package. If you are using this SQLite-Net version, you can simply add a reference to [_SQLiteNetExtensions_ NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions/). Also available with Async support in [_SQLiteNetExtensions.Async_ NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions.Async/).
 
 There's also [a PCL NuGet package](https://www.nuget.org/packages/SQLiteNetExtensions-MvvmCross/) for users of MvvmCross SQLite Community plugin.
 
@@ -179,6 +180,21 @@ Example:
 
     public class Address    {        public string StreetName { get; set; }        public string Number { get; set; }        public string PostalCode { get; set; }        public string Country { get; set; }    }    public class Person    {        public string Name { get; set; }        [TextBlob("PhonesBlobbed")]        public List<string> PhoneNumbers { get; set; }        [TextBlob("AddressesBlobbed")]        public List<Address> Addresses { get; set; }         public string PhonesBlobbed { get; set; } // serialized phone numbers        public string AddressesBlobbed { get; set; } // serialized addresses    }
     
+
+### Asynchronous operations
+When using SQLite.Net Async package, you can use _async_ version of all SQLite-Net Extensions methods. All asynchronous methods perform the same operation of their synchronous counterparts, but they have the `Async` suffix to differenciate them.
+
+Asynchronous operations require you to use an instance of [`SQLiteAsyncConnection`](https://github.com/oysteinkrog/SQLite.Net-PCL#sqliteasyncconnection) instead of a regular `SQLiteConnection`.
+
+Relationship properties and foreign keys are declared the same way and they can be used by both async and regular connections without changes.
+
+Synchronous example:
+
+    conn.InsertWithChildren(customer);
+    
+Asynchronous equivalent:
+
+    await conn.InsertWithChildrenAsync(customer);
 ### Cascade operations
 For safety, all operations are not recursive by default, but most of them can be configured to work recursively. SQLite-Net Extensions provides mechanisms for handling inverse relationships, references to the same class and circular dependencies out-of-the-box, so you won't have to worry about it. To handle it, there's a new property in all relationship attributes called `CascadeOperations` that allows you to specify how that relationship should behave on cascade operations. Cascade operations can be combined using the binary _OR_ operator `|`, for example:
 	[OneToMany(CascadeOperations = CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert)]

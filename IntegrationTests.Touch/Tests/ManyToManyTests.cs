@@ -155,6 +155,33 @@ namespace SQLiteNetExtensions.IntegrationTests
             public int ChildId { get; set; }
         }
 
+		public class M2MClassI 
+		{
+			[PrimaryKey, AutoIncrement, Column("_id")]
+			public int Id { get; set; }
+
+			[ManyToMany(typeof(ClassIClassJ))]
+			public List<M2MClassJ> BObjects { get; set; }
+
+			public string Bar { get; set; }
+		}
+
+		public class M2MClassJ 
+		{
+			[PrimaryKey, AutoIncrement]
+			public int Id { get; set; }
+
+			public string Foo { get; set; }
+		}
+
+		public class ClassIClassJ 
+		{
+			[ForeignKey(typeof(M2MClassI)), Column("class_i_id")]
+			public int ClassIId { get; set; }
+
+			[ForeignKey(typeof(M2MClassJ))]
+			public int ClassJId { get; set; }
+		}
 
         [Test]
         public void TestGetManyToManyList()
@@ -816,5 +843,106 @@ namespace SQLiteNetExtensions.IntegrationTests
                     Assert.IsTrue(obtained.Parents.Any(p => p.Id == parent.Id && p.Name == parent.Name), obtained.Name);
             }
         }
+
+		[Test]
+		public void TestGetManyToManyListInterface() {
+			// In this test we will create a N:M relationship between objects of ClassI and ClassJ
+			//      Class I     -       Class J
+			// --------------------------------------
+			//          1       -       1
+			//          2       -       1, 2
+			//          3       -       1, 2, 3
+			//          4       -       1, 2, 3, 4
+
+			var conn = Utils.CreateConnection();
+			conn.DropTable<M2MClassI>();
+			conn.DropTable<M2MClassJ>();
+			conn.DropTable<ClassIClassJ>();
+			conn.CreateTable<M2MClassI>();
+			conn.CreateTable<M2MClassJ>();
+			conn.CreateTable<ClassIClassJ>();
+
+			// Use standard SQLite-Net API to create the objects
+			var objectsJ = new List<M2MClassJ> {
+				new M2MClassJ {
+					Foo = string.Format("1- Foo String {0}", new Random().Next(100))
+				},
+				new M2MClassJ {
+					Foo = string.Format("2- Foo String {0}", new Random().Next(100))
+				},
+				new M2MClassJ {
+					Foo = string.Format("3- Foo String {0}", new Random().Next(100))
+				},
+				new M2MClassJ {
+					Foo = string.Format("4- Foo String {0}", new Random().Next(100))
+				}
+			};
+			conn.InsertAll(objectsJ);
+
+			var objectsI = new List<M2MClassI> {
+				new M2MClassI {
+					Bar = string.Format("1- Bar String {0}", new Random().Next(100))
+				},
+				new M2MClassI {
+					Bar = string.Format("2- Bar String {0}", new Random().Next(100))
+				},
+				new M2MClassI {
+					Bar = string.Format("3- Bar String {0}", new Random().Next(100))
+				},
+				new M2MClassI {
+					Bar = string.Format("4- Bar String {0}", new Random().Next(100))
+				}
+			};
+
+			conn.InsertAll(objectsI);
+
+			foreach(var objectI in objectsI)
+			{
+				var copyI = objectI;
+				Assert.Null(objectI.BObjects);
+
+				// Fetch (yet empty) the relationship
+				conn.GetChildren(copyI);
+
+				Assert.NotNull(copyI.BObjects);
+				Assert.AreEqual(0, copyI.BObjects.Count);
+			}
+
+
+			// Create the relationships in the intermediate table
+			for(var iIndex = 0; iIndex < objectsI.Count; iIndex++)
+			{
+				for(var jIndex = 0; jIndex <= iIndex; jIndex++)
+				{
+					conn.Insert(new ClassIClassJ {
+						ClassIId = objectsI[iIndex].Id,
+						ClassJId = objectsJ[jIndex].Id
+					});
+				}
+			}
+
+
+			for(var i = 0; i < objectsI.Count; i++)
+			{
+				var objectI = objectsI[i];
+
+				// Relationship still empty because hasn't been refreshed
+				Assert.NotNull(objectI.BObjects);
+				Assert.AreEqual(0, objectI.BObjects.Count);
+
+				// Fetch the relationship
+				conn.GetChildren(objectI);
+
+				var childrenCount = i + 1;
+
+				Assert.NotNull(objectI.BObjects);
+				Assert.AreEqual(childrenCount, objectI.BObjects.Count);
+				var foos = objectsJ.GetRange(0, childrenCount).Select(objectB => objectB.Foo).ToList();
+				foreach(var objectB in objectI.BObjects)
+				{
+					Assert.IsTrue(foos.Contains(objectB.Foo));
+				}
+			}
+		}
     }
 }

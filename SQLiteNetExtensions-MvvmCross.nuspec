@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>SQLite-Net Extensions is a very simple ORM that provides cascade operations, one-to-one, one-to-many, many-to-one, many-to-many, inverse and text-blobbed relationships on top of the sqlite-net library.</description>
     <releaseNotes>- Added PDB symbols to NuGet package (pull request #9).
-- Added support for IList<T> as *ToMany relationships using List<T> as default implementation (pull request #10)
+- Added support for IList&lt;T&gt; as *ToMany relationships using List&lt;T&gt; as default implementation (pull request #10)
 - Added support for reserved words in column names and table names (issue #55)
 - DeleteAll objects are splitted in groups of 999 to avoid SQLite variable limits in some platforms (issue #54)</releaseNotes>
     <copyright>TwinCoders 2014</copyright>

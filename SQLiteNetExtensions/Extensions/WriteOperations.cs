@@ -449,14 +449,14 @@ namespace SQLiteNetExtensions.Extensions
 
             // Objects already updated, now change the database
             var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", childrenKeyList.Count));
-            var query = string.Format("update {0} set {1} = ? where {2} in ({3})",
+            var query = string.Format("update [{0}] set [{1}] = ? where [{2}] in ({3})",
                 entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
             var parameters = new List<object> { keyValue };
             parameters.AddRange(childrenKeyList);
             conn.Execute(query, parameters.ToArray());
 
             // Delete previous relationships
-            var deleteQuery = string.Format("update {0} set {1} = NULL where {1} == ? and {2} not in ({3})",
+            var deleteQuery = string.Format("update [{0}] set [{1}] = NULL where [{1}] == ? and [{2}] not in ({3})",
                 entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
             conn.Execute(deleteQuery, parameters.ToArray());
         }
@@ -511,12 +511,12 @@ namespace SQLiteNetExtensions.Extensions
             // Objects already updated, now change the database
             if (inverseForeignKeyProperty != null && inversePrimaryKeyProperty != null)
             {
-                var query = string.Format("update {0} set {1} = ? where {2} == ?",
+                var query = string.Format("update [{0}] set [{1}] = ? where [{2}] == ?",
                     entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName());
                 conn.Execute(query, keyValue, childKey);
 
                 // Delete previous relationships
-                var deleteQuery = string.Format("update {0} set {1} = NULL where {1} == ? and {2} not in (?)",
+                var deleteQuery = string.Format("update [{0}] set [{1}] = NULL where [{1}] == ? and [{2}] not in (?)",
                     entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName());
                 conn.Execute(deleteQuery, keyValue, childKey ?? "");
             }
@@ -552,7 +552,7 @@ namespace SQLiteNetExtensions.Extensions
 
             // Check for already existing relationships
             var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", childKeyList.Count));
-            var currentChildrenQuery = string.Format("select {0} from {1} where {2} == ? and {0} in ({3})",
+            var currentChildrenQuery = string.Format("select [{0}] from [{1}] where [{2}] == ? and [{0}] in ({3})",
                 otherEntityForeignKeyProperty.GetColumnName(), intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName(), childrenPlaceHolders);
             var parameters = new List<object>{ primaryKey };
             parameters.AddRange(childKeyList);
@@ -576,7 +576,7 @@ namespace SQLiteNetExtensions.Extensions
             conn.InsertAll(missingIntermediateObjects);
 
             // Delete any other pending relationship
-            var deleteQuery = string.Format("delete from {0} where {1} == ? and {2} not in ({3})",
+            var deleteQuery = string.Format("delete from [{0}] where [{1}] == ? and [{2}] not in ({3})",
                 intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName(),
                 otherEntityForeignKeyProperty.GetColumnName(), childrenPlaceHolders);
             conn.Execute(deleteQuery, parameters.ToArray());
@@ -587,7 +587,7 @@ namespace SQLiteNetExtensions.Extensions
                 return;
 
             var placeholdersString = string.Join(",", Enumerable.Repeat("?", primaryKeyValues.Length));
-            var deleteQuery = string.Format("delete from {0} where {1} in ({2})", entityName, primaryKeyName, placeholdersString);
+            var deleteQuery = string.Format("delete from [{0}] where [{1}] in ({2})", entityName, primaryKeyName, placeholdersString);
 
             conn.Execute(deleteQuery, primaryKeyValues);
         }

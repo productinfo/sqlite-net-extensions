@@ -20,10 +20,11 @@ namespace SQLiteNetExtensions.IntegrationTests
     public class RecursiveWriteTests
     {
         #region OneToOneRecursiveInsert
+        [Table("group")] // To test the use of reserved words
         public class Person {
             [PrimaryKey, AutoIncrement]
             public int Identifier { get; set; }
-            
+
             public string Name { get; set; }
             public string Surname { get; set; }
             
@@ -134,6 +135,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         #endregion
 
         #region OneToOneRecursiveInsertGuid
+        [Table("column")] // To test the use of reserved words
         public class PersonGuid {
             [PrimaryKey]
             public Guid Identifier { get; set; }
@@ -252,6 +254,7 @@ namespace SQLiteNetExtensions.IntegrationTests
         #endregion
 
         #region OneToManyRecursiveInsert
+        [Table("select")] // To test the use of reserved words
         public class Customer {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
@@ -261,8 +264,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             [OneToMany(CascadeOperations = CascadeOperation.CascadeInsert)]
             public Order[] Orders { get; set; }
         }
-
-        [Table("Orders")] // 'Order' is a reserved keyword
+            
         public class Order {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }

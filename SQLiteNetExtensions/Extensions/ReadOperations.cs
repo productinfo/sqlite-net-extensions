@@ -255,7 +255,7 @@ namespace SQLiteNetExtensions.Extensions
                 var primaryKeyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
                 if (primaryKeyValue != null)
                 {
-                    var query = string.Format("select * from {0} where {1} = ? limit 1", entityType.GetTableName(),
+                    var query = string.Format("select * from [{0}] where [{1}] = ? limit 1", entityType.GetTableName(),
                         otherEntityForeignKeyProperty.GetColumnName());
                     value = conn.Query(tableMapping, query, primaryKeyValue).FirstOrDefault();
                         // Its a OneToOne, take only the first
@@ -356,7 +356,7 @@ namespace SQLiteNetExtensions.Extensions
             var primaryKeyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
             if (primaryKeyValue != null)
             {
-                var query = string.Format("select * from {0} where {1} = ?", entityType.GetTableName(),
+                var query = string.Format("select * from [{0}] where [{1}] = ?", entityType.GetTableName(),
                     otherEntityForeignKeyProperty.GetColumnName());
                 var queryResults = conn.Query(tableMapping, query, primaryKeyValue);
 
@@ -441,10 +441,10 @@ namespace SQLiteNetExtensions.Extensions
             if (primaryKeyValue != null)
             {
                 // Obtain the relationship keys
-                var keysQuery = string.Format("select {0} from {1} where {2} = ?", otherEntityForeignKeyProperty.GetColumnName(),
+                var keysQuery = string.Format("select [{0}] from [{1}] where [{2}] = ?", otherEntityForeignKeyProperty.GetColumnName(),
                     intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName());
 
-                var query = string.Format("select * from {0} where {1} in ({2})", entityType.GetTableName(),
+                var query = string.Format("select * from [{0}] where [{1}] in ({2})", entityType.GetTableName(),
                     otherEntityPrimaryKeyProperty.GetColumnName(), keysQuery);
 
                 var queryResults = conn.Query(tableMapping, query, primaryKeyValue);

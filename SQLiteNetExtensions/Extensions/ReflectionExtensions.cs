@@ -67,16 +67,16 @@ namespace SQLiteNetExtensions.Extensions
                 type = type.GetElementType();
                 enclosedType = EnclosedType.Array;
             }
+            else if (typeInfo.IsGenericType && typeof(List<>).GetTypeInfo().IsAssignableFrom(type.GetGenericTypeDefinition().GetTypeInfo()))
+            {
+                type = typeInfo.GenericTypeArguments[0];
+                enclosedType = EnclosedType.List;
+            }
             else if (typeInfo.IsGenericType && typeof(ObservableCollection<>).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo().GetGenericTypeDefinition().GetTypeInfo()))
             {
                 type = typeInfo.GenericTypeArguments[0];
                 enclosedType = EnclosedType.ObservableCollection;
             }
-			else if(typeInfo.IsGenericType && type.GetGenericTypeDefinition().GetTypeInfo().IsAssignableToGenericType(typeof(IList<>).GetTypeInfo()))
-			{
-				type = typeInfo.GenericTypeArguments[0];
-				enclosedType = EnclosedType.List;
-			} 
             return type;
         }
 
@@ -259,38 +259,5 @@ namespace SQLiteNetExtensions.Extensions
                    ((propertyInfo.GetMethod != null && !propertyInfo.GetMethod.IsStatic && propertyInfo.GetMethod.IsPublic) &&
                    (propertyInfo.SetMethod != null && !propertyInfo.SetMethod.IsStatic && propertyInfo.SetMethod.IsPublic));
         }
-
-		/// <summary>
-		/// Determines whether the <paramref name="genericType"/> is assignable from
-		/// <paramref name="givenType"/> taking into account generic definitions
-		/// </summary>
-		public static bool IsAssignableToGenericType(this TypeInfo givenType, TypeInfo genericType)
-		{
-			if(givenType == null || genericType == null)
-			{
-				return false;
-			}
-
-			return givenType == genericType
-				|| givenType.MapsToGenericTypeDefinition(genericType)
-				|| givenType.HasInterfaceThatMapsToGenericTypeDefinition(genericType)
-				|| givenType.IsAssignableToGenericType(genericType);
-		}
-
-		private static bool HasInterfaceThatMapsToGenericTypeDefinition(this TypeInfo givenType, TypeInfo genericType)
-		{
-			return givenType
-				.ImplementedInterfaces
-				.Select(it => it.GetTypeInfo())
-				.Where(it => it.IsGenericType)
-				.Any(it => it.GetGenericTypeDefinition().GetTypeInfo() == genericType);
-		}
-
-		private static bool MapsToGenericTypeDefinition(this TypeInfo givenType, TypeInfo genericType)
-		{
-			return genericType.IsGenericTypeDefinition
-				&& givenType.IsGenericType
-				&& givenType.GetGenericTypeDefinition().GetTypeInfo() == genericType;
-		}
     }
 }

@@ -116,6 +116,28 @@ namespace SQLiteNetExtensions.IntegrationTests
             public string Foo { get; set; }
         }
 
+		public class O2MClassI
+		{
+			[PrimaryKey, AutoIncrement]
+			public int Id { get; set; }
+
+			[OneToMany("ClassIKey")]   // Explicit foreign key declaration
+			public IList<O2MClassJ> FObjects { get; set; }
+			// List interface instead of concrete List
+
+			public string Bar { get; set; }
+		}
+
+		public class O2MClassJ
+		{
+			[PrimaryKey, AutoIncrement]
+			public int Id { get; set; }
+
+			public int ClassIKey { get; set; }
+
+			public string Foo { get; set; }
+		}
+
         [Test]
         public void TestGetOneToManyList()
         {
@@ -708,6 +730,64 @@ namespace SQLiteNetExtensions.IntegrationTests
             }
 
         }
+
+		[Test]
+		public void TestGetOneToManyListInterface() 
+		{
+			var conn = Utils.CreateConnection();
+			conn.DropTable<O2MClassI>();
+			conn.DropTable<O2MClassJ>();
+			conn.CreateTable<O2MClassI>();
+			conn.CreateTable<O2MClassJ>();
+
+			// Use standard SQLite-Net API to create the objects
+			var objectsJ = new[] {
+				new O2MClassJ {
+					Foo = string.Format("1- Foo String {0}", new Random().Next(100))
+				},
+				new O2MClassJ {
+					Foo = string.Format("2- Foo String {0}", new Random().Next(100))
+				},
+				new O2MClassJ {
+					Foo = string.Format("3- Foo String {0}", new Random().Next(100))
+				},
+				new O2MClassJ {
+					Foo = string.Format("4- Foo String {0}", new Random().Next(100))
+				}
+			};
+			conn.InsertAll(objectsJ);
+
+			var objectI = new O2MClassI();
+			conn.Insert(objectI);
+
+			Assert.Null(objectI.FObjects);
+
+			// Fetch (yet empty) the relationship
+			conn.GetChildren(objectI);
+			Assert.NotNull(objectI.FObjects);
+			Assert.AreEqual(0, objectI.FObjects.Count);
+
+			// Set the relationship using IDs
+			foreach(var objectB in objectsJ) 
+			{
+				objectB.ClassIKey = objectI.Id;
+				conn.Update(objectB);
+			}
+
+			Assert.NotNull(objectI.FObjects);
+			Assert.AreEqual(0, objectI.FObjects.Count);
+
+			// Fetch the relationship
+			conn.GetChildren(objectI);
+
+			Assert.NotNull(objectI.FObjects);
+			Assert.AreEqual(objectsJ.Length, objectI.FObjects.Count);
+			var foos = objectsJ.Select(objectF => objectF.Foo).ToList();
+			foreach(var objectF in objectI.FObjects) 
+			{
+				Assert.IsTrue(foos.Contains(objectF.Foo));
+			}
+		}
 
         public class Employee
         {

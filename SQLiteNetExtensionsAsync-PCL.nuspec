@@ -22,8 +22,8 @@
 
   <files>
     <file src="SQLiteNetExtensionsAsync-PCL/bin/Release/SQLiteNetExtensionsAsync.dll" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
-    <file src="MvvmCross/SQLiteNetExtensions-MvvmCross/bin/Release/*.pdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
-    <file src="MvvmCross/SQLiteNetExtensions-MvvmCross/bin/Release/*.mdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
+    <!--<file src="SQLiteNetExtensionsAsync-PCL/bin/Release/SQLiteNetExtensionsAsync.dll.pdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />-->
+    <file src="SQLiteNetExtensionsAsync-PCL/bin/Release/SQLiteNetExtensionsAsync.dll.mdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
     <file src="SQLiteNetExtensions/**/*.cs" target="src" />
   </files>
 

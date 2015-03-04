@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SQLiteNetExtensions</id>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <title>SQLite.Net Extensions-PCL</title>
     <authors>TwinCoders</authors>
     <owners>TwinCoders</owners>
@@ -10,10 +10,7 @@
     <projectUrl>https://bitbucket.org/twincoders/sqlite-net-extensions</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>SQLite-Net Extensions is a very simple ORM that provides cascade operations, one-to-one, one-to-many, many-to-one, many-to-many, inverse and text-blobbed relationships on top of the sqlite-net library.</description>
-    <releaseNotes>- Added PDB symbols to NuGet package (pull request #9).
-- Added support for IList&lt;T&gt; as *ToMany relationships using List&lt;T&gt; as default implementation (pull request #10)
-- Added support for reserved words in column names and table names (issue #55)
-- DeleteAll objects are splitted in groups of 999 to avoid SQLite variable limits in some platforms (issue #54)</releaseNotes>
+    <releaseNotes>Reverted pull request #10 due to issue #57</releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>sqlite sqlite-net net extensions orm cascade recursive</tags>
     <dependencies>
@@ -24,8 +21,8 @@
 
   <files>
     <file src="SQLiteNetExtensions/bin/Release/SQLiteNetExtensions.dll" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
-    <file src="MvvmCross/SQLiteNetExtensions-MvvmCross/bin/Release/*.pdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
-    <file src="MvvmCross/SQLiteNetExtensions-MvvmCross/bin/Release/*.mdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
+    <!--<file src="SQLiteNetExtensions/bin/Release/SQLiteNetExtensions.dll.pdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />-->
+    <file src="SQLiteNetExtensions/bin/Release/SQLiteNetExtensions.dll.mdb" target="lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
     <file src="SQLiteNetExtensions/**/*.cs" target="src" />
   </files>
 

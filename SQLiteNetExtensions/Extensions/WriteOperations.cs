@@ -586,11 +586,28 @@ namespace SQLiteNetExtensions.Extensions
             if (primaryKeyValues == null || primaryKeyValues.Length == 0)
                 return;
 
-            var placeholdersString = string.Join(",", Enumerable.Repeat("?", primaryKeyValues.Length));
-            var deleteQuery = string.Format("delete from [{0}] where [{1}] in ({2})", entityName, primaryKeyName, placeholdersString);
+            const int limit = 999;
+            if (primaryKeyValues.Length <= limit) {
+                var placeholdersString = string.Join(",", Enumerable.Repeat("?", primaryKeyValues.Length));
+                var deleteQuery = string.Format("delete from [{0}] where [{1}] in ({2})", entityName, primaryKeyName, placeholdersString);
 
-            conn.Execute(deleteQuery, primaryKeyValues);
+                conn.Execute(deleteQuery, primaryKeyValues);
+            }
+            else {
+                foreach (var primaryKeys in Split(primaryKeyValues.ToList(), limit)) {
+                    conn.DeleteAllIds(primaryKeys.ToArray(), entityName, primaryKeyName);
+                }
+
+            }
         }
+
+        static List<List<T>> Split<T>(List<T> items, int sliceSize = 30)
+        {
+            List<List<T>> list = new List<List<T>>();
+            for (int i = 0; i < items.Count; i += sliceSize)
+                list.Add(items.GetRange(i, Math.Min(sliceSize, items.Count - i)));
+            return list;
+        } 
             
         static void Assert(bool assertion, Type type, PropertyInfo property, string message) {
             if (EnableRuntimeAssertions && !assertion)

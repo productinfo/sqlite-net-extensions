@@ -128,6 +128,40 @@ namespace SQLiteNetExtensions.IntegrationTests
         }
 
         [Test]
+        public void TestDeleteAllThousandObjects() {
+            // In this test we will create thousands of elements in the database all but one with
+            // the DeleteAll method
+
+            var conn = Utils.CreateConnection();
+            conn.DropTable<DummyClassIntPK>();
+            conn.CreateTable<DummyClassIntPK>();
+
+            var elementsList = Enumerable.Range(0, 10000).Select(i =>
+                new DummyClassIntPK {
+                    Foo = "Foo " + i,
+                    Bar = "Bar " + i
+                }
+            ).ToList();
+
+            conn.InsertAll(elementsList);
+
+            // Verify that the elements have been inserted correctly
+            Assert.AreEqual(elementsList.Count, conn.Table<DummyClassIntPK>().Count());
+
+            var elementsToDelete = new List<DummyClassIntPK>(elementsList);
+            elementsToDelete.RemoveAt(0);
+
+            // Delete elements from the database
+            conn.DeleteAll(elementsToDelete, true);
+
+            // Verify that the elements have been deleted correctly
+            Assert.AreEqual(elementsList.Count - elementsToDelete.Count, conn.Table<DummyClassIntPK>().Count());
+            foreach (var deletedElement in elementsToDelete) {
+                Assert.IsNull(conn.Find<DummyClassIntPK>(deletedElement.Id));
+            }
+        }
+
+        [Test]
         public void TestDeleteAllIdsGuidPK() {
             // In this test we will create three elements in the database and delete
             // two of them using DeleteAllIds extension method

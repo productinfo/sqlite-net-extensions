@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SQLiteNetExtensions</id>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <title>SQLite.Net Extensions-PCL</title>
     <authors>TwinCoders</authors>
     <owners>TwinCoders</owners>
@@ -10,7 +10,10 @@
     <projectUrl>https://bitbucket.org/twincoders/sqlite-net-extensions</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>SQLite-Net Extensions is a very simple ORM that provides cascade operations, one-to-one, one-to-many, many-to-one, many-to-many, inverse and text-blobbed relationships on top of the sqlite-net library.</description>
-    <releaseNotes>TextBlob properties will work properly using recursive operations</releaseNotes>
+    <releaseNotes>- Added PDB symbols to NuGet package (pull request #9).
+- Added support for IList<T> as *ToMany relationships using List<T> as default implementation (pull request #10)
+- Added support for reserved words in column names and table names (issue #55)
+- DeleteAll objects are splitted in groups of 999 to avoid SQLite variable limits in some platforms (issue #54)</releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>sqlite sqlite-net net extensions orm cascade recursive</tags>
     <dependencies>

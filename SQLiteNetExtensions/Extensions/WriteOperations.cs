@@ -611,7 +611,7 @@ namespace SQLiteNetExtensions.Extensions
             
         static void Assert(bool assertion, Type type, PropertyInfo property, string message) {
             if (EnableRuntimeAssertions && !assertion)
-                throw new IncorrectRelationshipException(type.Name, property.Name, message);
+                throw new IncorrectRelationshipException(type.Name, property != null ? property.Name : string.Empty , message);
         }
         #endregion
     }

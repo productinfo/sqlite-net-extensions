@@ -362,9 +362,6 @@ Global
 		{5042AA25-BA34-44C4-B3F4-4173713B0070} = {357B95EF-DFD7-45CF-8F8E-3E2B437EE31D}
 		{54E8FEC0-144D-414B-BBBB-9F51FF355FC7} = {357B95EF-DFD7-45CF-8F8E-3E2B437EE31D}
 	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = IntegrationTests.Touch\IntegrationTests.Touch-PCL.csproj
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

@@ -33,7 +33,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false) where T : new()
+        public static async Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false) where T : class
         {
             return await Task.Run(() =>
             {
@@ -56,7 +56,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false) where T : new()
+        public static async Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false) where T : class
         {
             return await Task.Run(() =>
             {
@@ -81,7 +81,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false) where T : new()
+        public static async Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false) where T : class
         {
             return await Task.Run(() =>
             {

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SQLite.Net.Async;
 using NUnit.Framework.Constraints;
 
 #if PCL
 using SQLite.Net;
 using SQLite.Net.Attributes;
 using SQLite.Net.Platform.XamarinIOS;
+using SQLite.Net.Async;
 #else
 using Cirrious.MvvmCross.Community.Plugins.Sqlite;
 using Community.SQLite;

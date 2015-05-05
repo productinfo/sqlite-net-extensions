@@ -313,7 +313,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -357,7 +357,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -395,7 +395,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -467,7 +467,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -512,7 +512,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -550,7 +550,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -602,7 +602,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -652,7 +652,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -692,7 +692,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -745,7 +745,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -796,7 +796,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);
@@ -836,7 +836,7 @@ namespace SQLiteNetExtensions.IntegrationTests
             {
                 var expectedOrder = expectedOrders[order.Id];
                 Assert.AreEqual(expectedOrder.Amount, order.Amount, 0.0001);
-                Assert.AreEqual(expectedOrder.Date, order.Date);
+                Assert.AreEqual(expectedOrder.Date.ToUniversalTime(), order.Date.ToUniversalTime());
                 Assert.NotNull(order.Customer);
                 Assert.AreEqual(customer.Id, order.CustomerId);
                 Assert.AreEqual(customer.Id, order.Customer.Id);

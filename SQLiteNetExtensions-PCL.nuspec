@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SQLiteNetExtensions</id>
-    <version>1.2.5</version>
+    <version>1.3.0</version>
     <title>SQLite.Net Extensions-PCL</title>
     <authors>TwinCoders</authors>
     <owners>TwinCoders</owners>
@@ -10,12 +10,12 @@
     <projectUrl>https://bitbucket.org/twincoders/sqlite-net-extensions</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>SQLite-Net Extensions is a very simple ORM that provides cascade operations, one-to-one, one-to-many, many-to-one, many-to-many, inverse and text-blobbed relationships on top of the sqlite-net library.</description>
-    <releaseNotes>Reverted pull request #10 due to issue #57</releaseNotes>
+    <releaseNotes>Updated to use SQLite.Net PCL 3.0</releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>sqlite sqlite-net net extensions orm cascade recursive</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="6.0.5" />
-      <dependency id="SQLite.Net-PCL" version="2.4.1" />
+      <dependency id="Newtonsoft.Json" version="6.0.8" />
+      <dependency id="SQLite.Net-PCL" version="3.0.5" />
     </dependencies>
   </metadata>
 

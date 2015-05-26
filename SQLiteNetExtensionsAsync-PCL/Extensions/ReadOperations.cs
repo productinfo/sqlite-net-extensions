@@ -120,7 +120,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
                     cancellationToken.ThrowIfCancellationRequested();
                     connectionWithLock.GetChildren(element, recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
                     cancellationToken.ThrowIfCancellationRequested();
                     connectionWithLock.GetChild(element, element.GetType().GetRuntimeProperty(relationshipProperty), recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -39,6 +39,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         {
             return await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
@@ -64,6 +66,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         {
             return await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
@@ -91,6 +95,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         {
             return await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
@@ -114,6 +120,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         {
             await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
@@ -138,6 +146,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         {
             await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
@@ -179,6 +189,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         {
             await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {

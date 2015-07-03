@@ -150,7 +150,7 @@ The **inverse** relationship for a **many-to-many** property is a **many-to-many
 
 Example:
 
-    public class Student    {        [PrimaryKey, AutoIncrement]        public int Id { get; set; }        public string Name { get; set; }        [ManyToMany(typeof(StudentSubject))]        public List<Student> Students { get; set; }     }    public class Subject    {        [PrimaryKey, AutoIncrement]        public int Id { get; set; }        public string Description { get; set; }        [ManyToMany(typeof(StudentSubject))]        public List<Subject> Subjects { get; set; }     }    public class StudentSubject    {        [ForeignKey(typeof(Student))]        public int StudentId { get; set; }        [ForeignKey(typeof(Subject))]        public int SubjectId { get; set; }    }
+    public class Student    {        [PrimaryKey, AutoIncrement]        public int Id { get; set; }        public string Name { get; set; }        [ManyToMany(typeof(StudentSubject))]        public List<Subject> Subjects { get; set; }     }    public class Subject    {        [PrimaryKey, AutoIncrement]        public int Id { get; set; }        public string Description { get; set; }        [ManyToMany(typeof(StudentSubject))]        public List<Student> Students { get; set; }     }    public class StudentSubject    {        [ForeignKey(typeof(Student))]        public int StudentId { get; set; }        [ForeignKey(typeof(Subject))]        public int SubjectId { get; set; }    }
 
 ### Inverse relationships
 Inverse relationship are automatically discovered on runtime using reflection by matching the type of the origin entity with the type of the relationship of the opposite entity.

@@ -45,11 +45,11 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static List<T> GetAllWithChildren<T>(this SQLiteConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS
-                                                                                                        : new()
-                                                                                                        #else
-                                                                                                        : class
-                                                                                                        #endif
+#if USING_MVVMCROSS
+        : new()
+#else
+			: class
+#endif
         {
             var elements = conn.Table<T>();
             if (filter != null)
@@ -79,11 +79,11 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static T GetWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS
-                                                                                                        : new()
-                                                                                                        #else
-                                                                                                        : class
-                                                                                                        #endif
+#if USING_MVVMCROSS
+        : new()
+#else
+			: class
+#endif
         {
             var element = conn.Get<T>(pk);
             conn.GetChildren(element, recursive);
@@ -104,11 +104,11 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static T FindWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS
-                                                                                                        : new()
-                                                                                                        #else
-                                                                                                        : class
-                                                                                                        #endif
+#if USING_MVVMCROSS
+        : new()
+#else
+			: class
+#endif
         {
             var element = conn.Find<T>(pk);
             if (!EqualityComparer<T>.Default.Equals(element, default(T)))
@@ -125,7 +125,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static void GetChildren<T>(this SQLiteConnection conn, T element, bool recursive = false) 
+        public static void GetChildren<T>(this SQLiteConnection conn, T element, bool recursive = false)
         {
             GetChildrenRecursive(conn, element, false, recursive);
         }
@@ -179,7 +179,8 @@ namespace SQLiteNetExtensions.Extensions
         #endregion
 
         #region Private methods
-        private static void GetChildrenRecursive(this SQLiteConnection conn, object element, bool onlyCascadeChildren, bool recursive, ObjectCache objectCache =  null) {
+        private static void GetChildrenRecursive(this SQLiteConnection conn, object element, bool onlyCascadeChildren, bool recursive, ObjectCache objectCache = null)
+        {
             objectCache = objectCache ?? new ObjectCache();
 
             foreach (var relationshipProperty in element.GetType().GetRelationshipProperties())
@@ -187,19 +188,21 @@ namespace SQLiteNetExtensions.Extensions
                 var relationshipAttribute = relationshipProperty.GetAttribute<RelationshipAttribute>();
                 if (!onlyCascadeChildren || relationshipAttribute.IsCascadeRead)
                     conn.GetChildRecursive(element, relationshipProperty, recursive, objectCache);
-                else if (relationshipAttribute is TextBlobAttribute) {
+                else if (relationshipAttribute is TextBlobAttribute)
+                {
                     conn.GetChildRecursive(element, relationshipProperty, false, objectCache);
                 }
             }
         }
 
-        private static void GetChildRecursive(this SQLiteConnection conn, object element, PropertyInfo relationshipProperty, bool recursive, ObjectCache objectCache) {
-        
+        private static void GetChildRecursive(this SQLiteConnection conn, object element, PropertyInfo relationshipProperty, bool recursive, ObjectCache objectCache)
+        {
+
             var relationshipAttribute = relationshipProperty.GetAttribute<RelationshipAttribute>();
 
             if (relationshipAttribute is OneToOneAttribute)
             {
-                conn.GetOneToOneChild(element, relationshipProperty, recursive, objectCache);
+                conn.GetOneToOneChildren(new List<object> { element }, relationshipProperty, recursive, objectCache);
             }
             else if (relationshipAttribute is OneToManyAttribute)
             {
@@ -207,7 +210,7 @@ namespace SQLiteNetExtensions.Extensions
             }
             else if (relationshipAttribute is ManyToOneAttribute)
             {
-                conn.GetManyToOneChild(element, relationshipProperty, recursive, objectCache);
+                conn.GetManyToOneChildren(new List<object> { element }, relationshipProperty, recursive, objectCache);
             }
             else if (relationshipAttribute is ManyToManyAttribute)
             {
@@ -219,11 +222,12 @@ namespace SQLiteNetExtensions.Extensions
             }
         }
 
-        private static object GetOneToOneChild<T>(this SQLiteConnection conn, T element,
-            PropertyInfo relationshipProperty, 
+        private static object GetOneToOneChildren<T>(this SQLiteConnection conn, IList<T> elements,
+            PropertyInfo relationshipProperty,
             bool recursive, ObjectCache objectCache)
         {
-            var type = element.GetType();
+            var primaryKeys = new Dictionary<object, IList<T>>();
+            var type = elements[0].GetType();
             EnclosedType enclosedType;
             var entityType = relationshipProperty.GetEntityType(out enclosedType);
 
@@ -231,28 +235,128 @@ namespace SQLiteNetExtensions.Extensions
 
             var currentEntityPrimaryKeyProperty = type.GetPrimaryKey();
             var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
-            Assert(currentEntityPrimaryKeyProperty != null || otherEntityPrimaryKeyProperty != null, type, relationshipProperty, 
-                         "At least one entity in a OneToOne relationship must have Primary Key");
+            Assert(currentEntityPrimaryKeyProperty != null || otherEntityPrimaryKeyProperty != null, type, relationshipProperty,
+                "At least one entity in a OneToOne relationship must have Primary Key");
 
             var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
             var otherEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty, inverse: true);
-            Assert(currentEntityForeignKeyProperty != null || otherEntityForeignKeyProperty != null, type, relationshipProperty, 
-                         "At least one entity in a OneToOne relationship must have Foreign Key");
+            Assert(currentEntityForeignKeyProperty != null || otherEntityForeignKeyProperty != null, type, relationshipProperty,
+                "At least one entity in a OneToOne relationship must have Foreign Key");
 
             var hasForeignKey = otherEntityPrimaryKeyProperty != null && currentEntityForeignKeyProperty != null;
             var hasInverseForeignKey = currentEntityPrimaryKeyProperty != null && otherEntityForeignKeyProperty != null;
-            Assert(hasForeignKey || hasInverseForeignKey, type, relationshipProperty, 
-                         "Missing either ForeignKey or PrimaryKey for a complete OneToOne relationship");
+            Assert(hasForeignKey || hasInverseForeignKey, type, relationshipProperty,
+                "Missing either ForeignKey or PrimaryKey for a complete OneToOne relationship");
+
 
             var tableMapping = conn.GetMapping(entityType);
-            Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table for OneToOne relationship");
-
+            Assert(tableMapping != null, type, relationshipProperty, "There's no mapping table for OneToOne relationship");
             var inverseProperty = type.GetInverseProperty(relationshipProperty);
 
-            object value = null;
-            var isLoadedFromCache = false;
-            if (hasForeignKey)
+            foreach (T element in elements)
             {
+                bool isLoadedFromCache = false; ;
+                T value = default(T);
+                object keyValue = null;
+
+                if (hasForeignKey)
+                {
+                    keyValue = currentEntityForeignKeyProperty.GetValue(element, null);
+                    if (keyValue != null)
+                    {
+                        // Try to load from cache when possible
+                        if (recursive)
+                            value = (T)GetObjectFromCache(entityType, keyValue, objectCache);
+                        if (value != null)
+                            isLoadedFromCache = true;
+                    }
+                }
+                else
+                {
+                    keyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
+                    // Try to replace the loaded entity with the same object from the cache whenever possible
+                    value = recursive ? (T)ReplaceWithCacheObjectIfPossible(value, otherEntityPrimaryKeyProperty, objectCache, out isLoadedFromCache) : value;
+                }
+
+                if (isLoadedFromCache)
+                {
+                    relationshipProperty.SetValue(element, value, null);
+                    if (value != null && inverseProperty != null)
+                    {
+                        inverseProperty.SetValue(value, element, null);
+                    }
+                }
+                else
+                {
+                    if (keyValue != null)
+                    {
+                        AddPrimaryKeyToDictionary<T>(keyValue, element, primaryKeys);
+                    }
+                }
+
+            }
+
+            if (primaryKeys.Count > 0)
+            {
+                var placeHolders = string.Join(",", Enumerable.Repeat("?", primaryKeys.Count));
+                var query = string.Format("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
+                    tableMapping.PK.Name, placeHolders);
+                var parameters = new List<object>();
+                parameters.AddRange(primaryKeys.Select(x => x.Key));
+                IList<object> values = conn.Query(tableMapping, query, parameters.ToArray());
+
+                foreach (object value in values)
+                {
+                    var valueType = value.GetType();
+                    var keyValue = valueType.GetPrimaryKey().GetValue(value);
+                    IList<T> keyElements;
+                    if (primaryKeys.TryGetValue(keyValue, out keyElements))
+                    {
+                        foreach (var keyElement in keyElements)
+                        {
+                            relationshipProperty.SetValue(keyElement, value, null);
+                            if (value != null && recursive)
+                            {
+                                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
+                                conn.GetChildrenRecursive(value, true, recursive, objectCache);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+            return elements[0];
+        }
+
+
+        private static object GetManyToOneChildren<T>(this SQLiteConnection conn, IList<T> elements,
+            PropertyInfo relationshipProperty,
+            bool recursive, ObjectCache objectCache)
+        {
+            var type = elements[0].GetType();
+            EnclosedType enclosedType;
+            var entityType = relationshipProperty.GetEntityType(out enclosedType);
+
+            Assert(enclosedType == EnclosedType.None, type, relationshipProperty, "ManyToOne relationship cannot be of type List or Array");
+
+            var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
+            Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty,
+                "ManyToOne relationship destination must have Primary Key");
+
+            var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
+            Assert(currentEntityForeignKeyProperty != null, type, relationshipProperty, "ManyToOne relationship origin must have Foreign Key");
+
+            var tableMapping = conn.GetMapping(entityType);
+            Assert(tableMapping != null, type, relationshipProperty, "There's no mapping table for OneToMany relationship destination");
+
+            var primaryKeys = new Dictionary<object, IList<T>>();
+            foreach (T element in elements)
+            {
+                object value = null;
+                var isLoadedFromCache = false;
                 var foreignKeyValue = currentEntityForeignKeyProperty.GetValue(element, null);
                 if (foreignKeyValue != null)
                 {
@@ -260,113 +364,84 @@ namespace SQLiteNetExtensions.Extensions
                     if (recursive)
                         value = GetObjectFromCache(entityType, foreignKeyValue, objectCache);
                     if (value == null)
-                        value = conn.Find(foreignKeyValue, tableMapping);
+                        AddPrimaryKeyToDictionary<T>(foreignKeyValue, element, primaryKeys);
                     else
                         isLoadedFromCache = true;
                 }
+
+                if (isLoadedFromCache)
+                    relationshipProperty.SetValue(element, value, null);
             }
-            else
+
+            if (primaryKeys.Count > 0)
             {
-                var primaryKeyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
-                if (primaryKeyValue != null)
+                var placeHolders = string.Join(",", Enumerable.Repeat("?", primaryKeys.Count));
+                var query = string.Format("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
+                    tableMapping.PK.Name, placeHolders);
+                var parameters = new List<object>();
+                parameters.AddRange(primaryKeys.Select(x => x.Key));
+                IList<object> values = conn.Query(tableMapping, query, parameters.ToArray());
+
+                foreach (object value in values)
                 {
-                    var query = string.Format("select * from [{0}] where [{1}] = ? limit 1", entityType.GetTableName(),
-                        otherEntityForeignKeyProperty.GetColumnName());
-                    value = conn.Query(tableMapping, query, primaryKeyValue).FirstOrDefault();
-                        // Its a OneToOne, take only the first
+                    var valueType = value.GetType();
+                    var keyValue = valueType.GetPrimaryKey().GetValue(value);
+                    IList<T> keyElements;
+                    if (primaryKeys.TryGetValue(keyValue, out keyElements))
+                    {
+                        foreach (var keyElement in keyElements)
+                        {
+                            relationshipProperty.SetValue(keyElement, value, null);
+                            if (value != null && recursive)
+                            {
+                                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
+                                conn.GetChildrenRecursive(value, true, recursive, objectCache);
+                            }
+                        }
+                    }
                 }
-
-                // Try to replace the loaded entity with the same object from the cache whenever possible
-                value = recursive ? ReplaceWithCacheObjectIfPossible(value, otherEntityPrimaryKeyProperty, objectCache, out isLoadedFromCache) : value;
             }
 
-            relationshipProperty.SetValue(element, value, null);
-
-            if (value != null && inverseProperty != null)
-            {
-                inverseProperty.SetValue(value, element, null);
-            }
-
-            if (value != null && !isLoadedFromCache && recursive)
-            {
-                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
-                conn.GetChildrenRecursive(value, true, recursive, objectCache);
-            }
-
-            return value;
+            return elements[0];
         }
 
-
-        private static object GetManyToOneChild<T>(this SQLiteConnection conn, T element,
-            PropertyInfo relationshipProperty, 
-            bool recursive, ObjectCache objectCache)
+        private static void AddPrimaryKeyToDictionary<T>(object key, T element, Dictionary<object, IList<T>> dictionary)
         {
-            var type = element.GetType();
-            EnclosedType enclosedType;
-            var entityType = relationshipProperty.GetEntityType(out enclosedType);
-
-            Assert(enclosedType == EnclosedType.None, type, relationshipProperty,  "ManyToOne relationship cannot be of type List or Array");
-
-            var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
-            Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty, 
-                         "ManyToOne relationship destination must have Primary Key");
-
-            var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
-            Assert(currentEntityForeignKeyProperty != null, type, relationshipProperty,  "ManyToOne relationship origin must have Foreign Key");
-
-            var tableMapping = conn.GetMapping(entityType);
-            Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table for OneToMany relationship destination");
-
-            object value = null;
-            var isLoadedFromCache = false;
-            var foreignKeyValue = currentEntityForeignKeyProperty.GetValue(element, null);
-            if (foreignKeyValue != null)
+            IList<T> list;
+            if (!dictionary.TryGetValue(key, out list)) {
+                list = new List<T>() { element };
+                dictionary.Add(key, list);
+            } else
             {
-                // Try to load from cache when possible
-                if (recursive)
-                    value = GetObjectFromCache(entityType, foreignKeyValue, objectCache);
-                if (value == null)
-                    value = conn.Find(foreignKeyValue, tableMapping);
-                else
-                    isLoadedFromCache = true;
+                list.Add(element);
             }
-
-            relationshipProperty.SetValue(element, value, null);
-
-            if (value != null && !isLoadedFromCache && recursive)
-            {
-                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
-                conn.GetChildrenRecursive(value, true, recursive, objectCache);
-            }
-
-            return value;
         }
 
         private static IEnumerable GetOneToManyChildren<T>(this SQLiteConnection conn, T element,
-            PropertyInfo relationshipProperty, 
+            PropertyInfo relationshipProperty,
             bool recursive, ObjectCache objectCache)
         {
             var type = element.GetType();
             EnclosedType enclosedType;
             var entityType = relationshipProperty.GetEntityType(out enclosedType);
 
-            Assert(enclosedType != EnclosedType.None, type, relationshipProperty,  "OneToMany relationship must be a List or Array");
+            Assert(enclosedType != EnclosedType.None, type, relationshipProperty, "OneToMany relationship must be a List or Array");
 
             var currentEntityPrimaryKeyProperty = type.GetPrimaryKey();
-            Assert(currentEntityPrimaryKeyProperty != null, type, relationshipProperty,  "OneToMany relationship origin must have Primary Key");
+            Assert(currentEntityPrimaryKeyProperty != null, type, relationshipProperty, "OneToMany relationship origin must have Primary Key");
 
             var otherEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty, inverse: true);
-            Assert(otherEntityForeignKeyProperty != null, type, relationshipProperty, 
-                         "OneToMany relationship destination must have Foreign Key to the origin class");
+            Assert(otherEntityForeignKeyProperty != null, type, relationshipProperty,
+                "OneToMany relationship destination must have Foreign Key to the origin class");
 
             var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
 
             var tableMapping = conn.GetMapping(entityType);
-            Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table for OneToMany relationship destination");
+            Assert(tableMapping != null, type, relationshipProperty, "There's no mapping table for OneToMany relationship destination");
 
             var inverseProperty = type.GetInverseProperty(relationshipProperty);
 
-            IList cascadeElements = new List<object>();
+            IList<T> cascadeElements = new List<T>();
             IList values = null;
             var primaryKeyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
             if (primaryKeyValue != null)
@@ -379,14 +454,14 @@ namespace SQLiteNetExtensions.Extensions
 
                 // Create a generic list of the expected type
                 if (enclosedType == EnclosedType.List)
-                    values = (IList) Activator.CreateInstance(typeof (List<>).MakeGenericType(entityType));
+                    values = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(entityType));
                 else if (enclosedType == EnclosedType.ObservableCollection)
-                    values = (IList) Activator.CreateInstance(typeof (ObservableCollection<>).MakeGenericType(entityType));
+                    values = (IList)Activator.CreateInstance(typeof(ObservableCollection<>).MakeGenericType(entityType));
                 else
                     values = array = Array.CreateInstance(entityType, queryResults.Count);
-                    
+
                 int i = 0;
-                foreach (var result in queryResults)
+                foreach (T result in queryResults)
                 {
                     // Replace obtained value with a cached one whenever possible
                     bool loadedFromCache = false;
@@ -417,17 +492,53 @@ namespace SQLiteNetExtensions.Extensions
 
             if (recursive)
             {
-                foreach (var child in cascadeElements)
+                if (cascadeElements.Count > 0)
                 {
-                    conn.GetChildrenRecursive(child, true, recursive, objectCache);
+                    conn.GetChildrenRecursiveBatched(cascadeElements, objectCache);
                 }
             }
 
             return values;
         }
 
+        private static void GetChildrenRecursiveBatched<T>(this SQLiteConnection conn, IList<T> elements, ObjectCache objectCache)
+        {
+            var element = elements[0];
+            foreach (var relationshipProperty in element.GetType().GetRelationshipProperties())
+            {
+                var relationshipAttribute = relationshipProperty.GetAttribute<RelationshipAttribute>();
+                if (relationshipAttribute.IsCascadeRead)
+                {
+                    if (relationshipAttribute is OneToOneAttribute)
+                    {
+                        conn.GetOneToOneChildren(elements, relationshipProperty, true, objectCache);
+                    }
+                    else if (relationshipAttribute is OneToManyAttribute)
+                    {
+                        conn.GetOneToManyChildren(element, relationshipProperty, true, objectCache);
+                    }
+                    else if (relationshipAttribute is ManyToOneAttribute)
+                    {
+                        conn.GetManyToOneChildren(elements, relationshipProperty, true, objectCache);
+                    }
+                    else if (relationshipAttribute is ManyToManyAttribute)
+                    {
+                        conn.GetManyToManyChildren(element, relationshipProperty, true, objectCache);
+                    }
+                    else if (relationshipAttribute is TextBlobAttribute)
+                    {
+                        TextBlobOperations.GetTextBlobChild(element, relationshipProperty);
+                    }
+                }
+                else if (relationshipAttribute is TextBlobAttribute)
+                {
+                    conn.GetChildRecursive(element, relationshipProperty, false, objectCache);
+                }
+            }
+        }
+
         private static IEnumerable GetManyToManyChildren<T>(this SQLiteConnection conn, T element,
-            PropertyInfo relationshipProperty, 
+            PropertyInfo relationshipProperty,
             bool recursive, ObjectCache objectCache)
         {
             var type = element.GetType();
@@ -442,13 +553,13 @@ namespace SQLiteNetExtensions.Extensions
             var intermediateType = manyToManyMetaInfo.IntermediateType;
             var tableMapping = conn.GetMapping(entityType);
 
-            Assert(enclosedType != EnclosedType.None, type, relationshipProperty,  "ManyToMany relationship must be a List or Array");
-            Assert(currentEntityPrimaryKeyProperty != null, type, relationshipProperty,  "ManyToMany relationship origin must have Primary Key");
-            Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty,  "ManyToMany relationship destination must have Primary Key");
-            Assert(intermediateType != null, type, relationshipProperty,  "ManyToMany relationship intermediate type cannot be null");
-            Assert(currentEntityForeignKeyProperty != null, type, relationshipProperty,  "ManyToMany relationship origin must have a foreign key defined in the intermediate type");
-            Assert(otherEntityForeignKeyProperty != null, type, relationshipProperty,  "ManyToMany relationship destination must have a foreign key defined in the intermediate type");
-            Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table defined for ManyToMany relationship origin");
+            Assert(enclosedType != EnclosedType.None, type, relationshipProperty, "ManyToMany relationship must be a List or Array");
+            Assert(currentEntityPrimaryKeyProperty != null, type, relationshipProperty, "ManyToMany relationship origin must have Primary Key");
+            Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty, "ManyToMany relationship destination must have Primary Key");
+            Assert(intermediateType != null, type, relationshipProperty, "ManyToMany relationship intermediate type cannot be null");
+            Assert(currentEntityForeignKeyProperty != null, type, relationshipProperty, "ManyToMany relationship origin must have a foreign key defined in the intermediate type");
+            Assert(otherEntityForeignKeyProperty != null, type, relationshipProperty, "ManyToMany relationship destination must have a foreign key defined in the intermediate type");
+            Assert(tableMapping != null, type, relationshipProperty, "There's no mapping table defined for ManyToMany relationship origin");
 
             IList cascadeElements = new List<object>();
             IList values = null;
@@ -468,12 +579,12 @@ namespace SQLiteNetExtensions.Extensions
 
                 // Create a generic list of the expected type
                 if (enclosedType == EnclosedType.List)
-                    values = (IList) Activator.CreateInstance(typeof (List<>).MakeGenericType(entityType));
+                    values = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(entityType));
                 else if (enclosedType == EnclosedType.ObservableCollection)
-                    values = (IList) Activator.CreateInstance(typeof (ObservableCollection<>).MakeGenericType(entityType));
+                    values = (IList)Activator.CreateInstance(typeof(ObservableCollection<>).MakeGenericType(entityType));
                 else
                     values = array = Array.CreateInstance(entityType, queryResults.Count);
-                    
+
                 int i = 0;
                 foreach (var result in queryResults)
                 {
@@ -506,8 +617,9 @@ namespace SQLiteNetExtensions.Extensions
 
             return values;
         }
-            
-        static object ReplaceWithCacheObjectIfPossible(object element, PropertyInfo primaryKeyProperty, ObjectCache objectCache, out bool isLoadedFromCache) {
+
+        static object ReplaceWithCacheObjectIfPossible(object element, PropertyInfo primaryKeyProperty, ObjectCache objectCache, out bool isLoadedFromCache)
+        {
             isLoadedFromCache = false;
             if (element == null || primaryKeyProperty == null || objectCache == null)
                 return element;
@@ -534,13 +646,15 @@ namespace SQLiteNetExtensions.Extensions
             return result;
         }
 
-        static void Assert(bool assertion, Type type, PropertyInfo property, string message) {
+        static void Assert(bool assertion, Type type, PropertyInfo property, string message)
+        {
             if (EnableRuntimeAssertions && !assertion)
                 throw new IncorrectRelationshipException(type.Name, property.Name, message);
 
         }
 
-        static object GetObjectFromCache(Type objectType, object primaryKey, ObjectCache objectCache) {
+        static object GetObjectFromCache(Type objectType, object primaryKey, ObjectCache objectCache)
+        {
             if (objectCache == null)
                 return null;
 
@@ -555,7 +669,8 @@ namespace SQLiteNetExtensions.Extensions
             return value;
         }
 
-        static void SaveObjectToCache(object element, object primaryKey, ObjectCache objectCache) {
+        static void SaveObjectToCache(object element, object primaryKey, ObjectCache objectCache)
+        {
             if (objectCache == null || primaryKey == null || element == null)
                 return;
 

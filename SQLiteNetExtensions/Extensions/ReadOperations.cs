@@ -228,26 +228,26 @@ namespace SQLiteNetExtensions.Extensions
             EnclosedType enclosedType;
             var entityType = relationshipProperty.GetEntityType(out enclosedType);
 
-            Assert(enclosedType == EnclosedType.None, type, relationshipProperty, "OneToOne relationship cannot be of type List or Array");
+            Assert(enclosedType == EnclosedType.None, type, relationshipProperty,  "OneToOne relationship cannot be of type List or Array");
 
             var currentEntityPrimaryKeyProperty = type.GetPrimaryKey();
             var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
             Assert(currentEntityPrimaryKeyProperty != null || otherEntityPrimaryKeyProperty != null, type, relationshipProperty,
-                "At least one entity in a OneToOne relationship must have Primary Key");
+                         "At least one entity in a OneToOne relationship must have Primary Key");
 
             var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
             var otherEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty, inverse: true);
             Assert(currentEntityForeignKeyProperty != null || otherEntityForeignKeyProperty != null, type, relationshipProperty,
-                "At least one entity in a OneToOne relationship must have Foreign Key");
+                         "At least one entity in a OneToOne relationship must have Foreign Key");
 
             var hasForeignKey = otherEntityPrimaryKeyProperty != null && currentEntityForeignKeyProperty != null;
             var hasInverseForeignKey = currentEntityPrimaryKeyProperty != null && otherEntityForeignKeyProperty != null;
             Assert(hasForeignKey || hasInverseForeignKey, type, relationshipProperty,
-                "Missing either ForeignKey or PrimaryKey for a complete OneToOne relationship");
-
+                         "Missing either ForeignKey or PrimaryKey for a complete OneToOne relationship");
 
             var tableMapping = conn.GetMapping(entityType);
-            Assert(tableMapping != null, type, relationshipProperty, "There's no mapping table for OneToOne relationship");
+            Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table for OneToOne relationship");
+
             var inverseProperty = type.GetInverseProperty(relationshipProperty);
 
             foreach (T element in elements)
@@ -327,23 +327,23 @@ namespace SQLiteNetExtensions.Extensions
             PropertyInfo relationshipProperty,
             bool recursive, ObjectCache objectCache)
         {
+            var primaryKeys = new Dictionary<object, IList<T>>();
             var type = elements[0].GetType();
             EnclosedType enclosedType;
             var entityType = relationshipProperty.GetEntityType(out enclosedType);
 
-            Assert(enclosedType == EnclosedType.None, type, relationshipProperty, "ManyToOne relationship cannot be of type List or Array");
+            Assert(enclosedType == EnclosedType.None, type, relationshipProperty,  "ManyToOne relationship cannot be of type List or Array");
 
             var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
             Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty,
-                "ManyToOne relationship destination must have Primary Key");
+                         "ManyToOne relationship destination must have Primary Key");
 
             var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
-            Assert(currentEntityForeignKeyProperty != null, type, relationshipProperty, "ManyToOne relationship origin must have Foreign Key");
+            Assert(currentEntityForeignKeyProperty != null, type, relationshipProperty,  "ManyToOne relationship origin must have Foreign Key");
 
             var tableMapping = conn.GetMapping(entityType);
-            Assert(tableMapping != null, type, relationshipProperty, "There's no mapping table for OneToMany relationship destination");
+            Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table for OneToMany relationship destination");
 
-            var primaryKeys = new Dictionary<object, IList<T>>();
             foreach (T element in elements)
             {
                 object value = null;

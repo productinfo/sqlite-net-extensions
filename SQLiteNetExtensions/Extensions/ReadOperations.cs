@@ -315,6 +315,10 @@ namespace SQLiteNetExtensions.Extensions
                         foreach (var keyElement in keyElements)
                         {
                             relationshipProperty.SetValue(keyElement, value, null);
+                            if (value != null && inverseProperty != null)
+                            {
+                                inverseProperty.SetValue(value, keyElement, null);
+                            }
                             if (value != null && recursive)
                             {
                                 SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
@@ -408,10 +412,12 @@ namespace SQLiteNetExtensions.Extensions
         private static void AddPrimaryKeyToDictionary<T>(object key, T element, Dictionary<object, IList<T>> dictionary)
         {
             IList<T> list;
-            if (!dictionary.TryGetValue(key, out list)) {
+            if (!dictionary.TryGetValue(key, out list))
+            {
                 list = new List<T>() { element };
                 dictionary.Add(key, list);
-            } else
+            }
+            else
             {
                 list.Add(element);
             }
@@ -515,7 +521,9 @@ namespace SQLiteNetExtensions.Extensions
                     }
                     else if (relationshipAttribute is OneToManyAttribute)
                     {
-                        conn.GetOneToManyChildren(element, relationshipProperty, true, objectCache);
+						foreach (var e in elements) {
+							conn.GetOneToManyChildren (e, relationshipProperty, true, objectCache);
+						}
                     }
                     else if (relationshipAttribute is ManyToOneAttribute)
                     {
@@ -523,7 +531,9 @@ namespace SQLiteNetExtensions.Extensions
                     }
                     else if (relationshipAttribute is ManyToManyAttribute)
                     {
-                        conn.GetManyToManyChildren(element, relationshipProperty, true, objectCache);
+						foreach (var e in elements) {
+							conn.GetManyToManyChildren (e, relationshipProperty, true, objectCache);
+						}
                     }
                     else if (relationshipAttribute is TextBlobAttribute)
                     {
@@ -532,7 +542,9 @@ namespace SQLiteNetExtensions.Extensions
                 }
                 else if (relationshipAttribute is TextBlobAttribute)
                 {
-                    conn.GetChildRecursive(element, relationshipProperty, false, objectCache);
+					foreach (var e in elements) {
+						conn.GetChildRecursive (e, relationshipProperty, false, objectCache);
+					}
                 }
             }
         }

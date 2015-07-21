@@ -252,7 +252,7 @@ namespace SQLiteNetExtensions.Extensions
 
             foreach (T element in elements)
             {
-                bool isLoadedFromCache = false; ;
+                bool isLoadedFromCache = false;
                 T value = default(T);
                 object keyValue = null;
 
@@ -297,32 +297,27 @@ namespace SQLiteNetExtensions.Extensions
                 var placeHolders = string.Join(",", Enumerable.Repeat("?", primaryKeys.Count));
                 var query = string.Format("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
                     tableMapping.PK.Name, placeHolders);
-                var parameters = new List<object>();
-                parameters.AddRange(primaryKeys.Select(x => x.Key));
-                IList<object> values = conn.Query(tableMapping, query, parameters.ToArray());
+				IList<object> values = conn.Query(tableMapping, query, primaryKeys.Keys.ToArray());
 
-                foreach (object value in values)
-                {
-                    var valueType = value.GetType();
-                    var keyValue = valueType.GetPrimaryKey().GetValue(value);
-                    IList<T> keyElements;
-                    if (primaryKeys.TryGetValue(keyValue, out keyElements))
-                    {
-                        foreach (var keyElement in keyElements)
-                        {
-                            relationshipProperty.SetValue(keyElement, value, null);
-                            if (value != null && inverseProperty != null)
-                            {
-                                inverseProperty.SetValue(value, keyElement, null);
-                            }
-                            if (value != null && recursive)
-                            {
-                                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
-                                conn.GetChildrenRecursive(value, true, recursive, objectCache);
-                            }
-                        }
-                    }
-                }
+				if (values.Count > 0) {
+					var keyProperty = values [0].GetType ().GetPrimaryKey ();
+					foreach (object value in values) {
+						var keyValue = keyProperty.GetValue (value);
+						IList<T> keyElements;
+						if (primaryKeys.TryGetValue (keyValue, out keyElements)) {
+							foreach (var keyElement in keyElements) {
+								relationshipProperty.SetValue (keyElement, value, null);
+								if (value != null && inverseProperty != null) {
+									inverseProperty.SetValue (value, keyElement, null);
+								}
+								if (value != null && recursive) {
+									SaveObjectToCache (value, otherEntityPrimaryKeyProperty.GetValue (value, null), objectCache);
+									conn.GetChildrenRecursive (value, true, recursive, objectCache);
+								}
+							}
+						}
+					}
+				}
             }
             return elements[0];
         }
@@ -369,45 +364,40 @@ namespace SQLiteNetExtensions.Extensions
                     relationshipProperty.SetValue(element, value, null);
             }
 
-            if (primaryKeys.Count > 0)
-            {
-                var placeHolders = string.Join(",", Enumerable.Repeat("?", primaryKeys.Count));
-                var query = string.Format("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
-                    tableMapping.PK.Name, placeHolders);
-                var parameters = new List<object>();
-                parameters.AddRange(primaryKeys.Select(x => x.Key));
-                IList<object> values = conn.Query(tableMapping, query, parameters.ToArray());
+			if (primaryKeys.Count > 0) {
+				var placeHolders = string.Join (",", Enumerable.Repeat ("?", primaryKeys.Count));
+				var query = string.Format ("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
+					                        tableMapping.PK.Name, placeHolders);
+				IList<object> values = conn.Query (tableMapping, query, primaryKeys.Keys.ToArray());
 
-                foreach (object value in values)
-                {
-                    var valueType = value.GetType();
-                    var keyValue = valueType.GetPrimaryKey().GetValue(value);
-                    IList<T> keyElements;
-                    if (primaryKeys.TryGetValue(keyValue, out keyElements))
-                    {
-                        foreach (var keyElement in keyElements)
-                        {
-                            relationshipProperty.SetValue(keyElement, value, null);
-                            if (value != null && recursive)
-                            {
-                                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
-                                conn.GetChildrenRecursive(value, true, recursive, objectCache);
-                            }
-                        }
-                    }
-                }
-            }
+				if (values.Count > 0) {
+					var keyProperty = values [0].GetType ().GetPrimaryKey ();
+					foreach (object value in values) {
+						var keyValue = keyProperty.GetValue (value);
+						IList<T> keyElements;
+						if (primaryKeys.TryGetValue (keyValue, out keyElements)) {
+							foreach (var keyElement in keyElements) {
+								relationshipProperty.SetValue (keyElement, value, null);
+								if (value != null && recursive) {
+									SaveObjectToCache (value, otherEntityPrimaryKeyProperty.GetValue (value, null), objectCache);
+									conn.GetChildrenRecursive (value, true, recursive, objectCache);
+								}
+							}
+						}
+					}
+				}
+			}
 
             return elements[0];
         }
 
-        private static void AddPrimaryKeyToDictionary<T>(object key, T element, Dictionary<object, IList<T>> dictionary)
+        private static void AddPrimaryKeyToDictionary<T>(object key, T element, Dictionary<object, IList<T>> primaryKeys)
         {
             IList<T> list;
-            if (!dictionary.TryGetValue(key, out list))
+            if (!primaryKeys.TryGetValue(key, out list))
             {
                 list = new List<T>() { element };
-                dictionary.Add(key, list);
+                primaryKeys.Add(key, list);
             }
             else
             {

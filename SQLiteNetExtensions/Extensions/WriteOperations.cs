@@ -456,8 +456,10 @@ namespace SQLiteNetExtensions.Extensions
             var deleteParamaters = new List<object> { keyValue };
             conn.Execute(deleteQuery, deleteParamaters.ToArray());
 
-            foreach (var chunk in Split(childrenKeyList, queryLimit))
-            {
+            var chunks = Split(childrenKeyList, queryLimit);
+            var loopTo = chunks.Count == 0 ? 1 : chunks.Count;
+            for (int i = 0; i < loopTo; i++) {
+                var chunk = chunks.Count > i ? chunks[i] :new List<object>();
                 // Objects already updated, now change the database
                 var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", chunk.Count));
                 var query = string.Format("update [{0}] set [{1}] = ? where [{2}] in ({3})",
@@ -466,9 +468,7 @@ namespace SQLiteNetExtensions.Extensions
                 var parameters = new List<object> { keyValue };
                 parameters.AddRange(chunk);
                 conn.Execute(query, parameters.ToArray());
-
             }
-            
         }
 
         private static void UpdateOneToOneInverseForeignKey(this SQLiteConnection conn, object element, PropertyInfo relationshipProperty)
@@ -561,8 +561,10 @@ namespace SQLiteNetExtensions.Extensions
                                 select otherEntityPrimaryKeyProperty.GetValue(child, null)).ToList();
 
             List<object> currentChildKeyList = new List<object>();
-            foreach (var chunk in Split(childKeyList, queryLimit))
-            {
+            var chunks = Split(childKeyList, queryLimit);
+            var loopTo = chunks.Count == 0 ? 1 : chunks.Count;
+            for (int i = 0; i < loopTo; i++) {
+                var chunk = chunks.Count > i ? chunks[i] : new List<object>();
                 // Check for already existing relationships
                 var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", chunk.Count));
                 var currentChildrenQuery = string.Format("select [{0}] from [{1}] where [{2}] == ? and [{0}] in ({3})",
@@ -575,7 +577,6 @@ namespace SQLiteNetExtensions.Extensions
                         conn.Query(conn.GetMapping(intermediateType), currentChildrenQuery, parameters.ToArray())
                     select otherEntityForeignKeyProperty.GetValue(child, null));
             }
-            
 
             // Insert missing relationships in the intermediate table
             var missingChildKeyList = childKeyList.Where(o => !currentChildKeyList.Contains(o)).ToList();
@@ -591,10 +592,11 @@ namespace SQLiteNetExtensions.Extensions
 
             conn.InsertAll(missingIntermediateObjects);
 
- 
 
-            foreach (var chunk in Split(childKeyList, queryLimit))
+
+            for (int i = 0; i < loopTo; i++)
             {
+                var chunk = chunks.Count > i ? chunks[i] : new List<object>();
                 var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", chunk.Count));
 
                 // Delete any other pending relationship

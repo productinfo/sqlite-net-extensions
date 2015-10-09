@@ -448,7 +448,14 @@ namespace SQLiteNetExtensions.Extensions
                     }
                 }
             }
-       
+
+
+            // Delete previous relationships
+            var deleteQuery = string.Format("update [{0}] set [{1}] = NULL where [{1}] == ?",
+                entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName());
+            var deleteParamaters = new List<object> { keyValue };
+            conn.Execute(deleteQuery, deleteParamaters.ToArray());
+
             foreach (var chunk in Split(childrenKeyList, queryLimit))
             {
                 // Objects already updated, now change the database
@@ -456,14 +463,10 @@ namespace SQLiteNetExtensions.Extensions
                 var query = string.Format("update [{0}] set [{1}] = ? where [{2}] in ({3})",
                     entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
 
-                // Delete previous relationships
-                var deleteQuery = string.Format("update [{0}] set [{1}] = NULL where [{1}] == ? and [{2}] not in ({3})",
-                    entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
-
                 var parameters = new List<object> { keyValue };
                 parameters.AddRange(chunk);
                 conn.Execute(query, parameters.ToArray());
-                conn.Execute(deleteQuery, parameters.ToArray());
+
             }
             
         }

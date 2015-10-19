@@ -199,7 +199,7 @@ namespace SQLiteNetExtensions.Extensions
 
             if (relationshipAttribute is OneToOneAttribute)
             {
-                conn.GetOneToOneChild(element, relationshipProperty, recursive, objectCache);
+                conn.GetOneToOneChildren(new List<object> { element }, relationshipProperty, recursive, objectCache);
             }
             else if (relationshipAttribute is OneToManyAttribute)
             {
@@ -207,7 +207,7 @@ namespace SQLiteNetExtensions.Extensions
             }
             else if (relationshipAttribute is ManyToOneAttribute)
             {
-                conn.GetManyToOneChild(element, relationshipProperty, recursive, objectCache);
+                conn.GetManyToOneChildren(new List<object> { element }, relationshipProperty, recursive, objectCache);
             }
             else if (relationshipAttribute is ManyToManyAttribute)
             {
@@ -219,29 +219,30 @@ namespace SQLiteNetExtensions.Extensions
             }
         }
 
-        private static object GetOneToOneChild<T>(this SQLiteConnection conn, T element,
-            PropertyInfo relationshipProperty, 
+        private static object GetOneToOneChildren<T>(this SQLiteConnection conn, IList<T> elements,
+            PropertyInfo relationshipProperty,
             bool recursive, ObjectCache objectCache)
         {
-            var type = element.GetType();
+            var primaryKeys = new Dictionary<object, IList<T>>();
+            var type = elements[0].GetType();
             EnclosedType enclosedType;
             var entityType = relationshipProperty.GetEntityType(out enclosedType);
 
-            Assert(enclosedType == EnclosedType.None, type, relationshipProperty, "OneToOne relationship cannot be of type List or Array");
+            Assert(enclosedType == EnclosedType.None, type, relationshipProperty,  "OneToOne relationship cannot be of type List or Array");
 
             var currentEntityPrimaryKeyProperty = type.GetPrimaryKey();
             var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
-            Assert(currentEntityPrimaryKeyProperty != null || otherEntityPrimaryKeyProperty != null, type, relationshipProperty, 
+            Assert(currentEntityPrimaryKeyProperty != null || otherEntityPrimaryKeyProperty != null, type, relationshipProperty,
                          "At least one entity in a OneToOne relationship must have Primary Key");
 
             var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
             var otherEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty, inverse: true);
-            Assert(currentEntityForeignKeyProperty != null || otherEntityForeignKeyProperty != null, type, relationshipProperty, 
+            Assert(currentEntityForeignKeyProperty != null || otherEntityForeignKeyProperty != null, type, relationshipProperty,
                          "At least one entity in a OneToOne relationship must have Foreign Key");
 
             var hasForeignKey = otherEntityPrimaryKeyProperty != null && currentEntityForeignKeyProperty != null;
             var hasInverseForeignKey = currentEntityPrimaryKeyProperty != null && otherEntityForeignKeyProperty != null;
-            Assert(hasForeignKey || hasInverseForeignKey, type, relationshipProperty, 
+            Assert(hasForeignKey || hasInverseForeignKey, type, relationshipProperty,
                          "Missing either ForeignKey or PrimaryKey for a complete OneToOne relationship");
 
             var tableMapping = conn.GetMapping(entityType);
@@ -249,66 +250,92 @@ namespace SQLiteNetExtensions.Extensions
 
             var inverseProperty = type.GetInverseProperty(relationshipProperty);
 
-            object value = null;
-            var isLoadedFromCache = false;
-            if (hasForeignKey)
+            foreach (T element in elements)
             {
-                var foreignKeyValue = currentEntityForeignKeyProperty.GetValue(element, null);
-                if (foreignKeyValue != null)
+                bool isLoadedFromCache = false;
+                T value = default(T);
+                object keyValue = null;
+
+                if (hasForeignKey)
                 {
-                    // Try to load from cache when possible
-                    if (recursive)
-                        value = GetObjectFromCache(entityType, foreignKeyValue, objectCache);
-                    if (value == null)
-                        value = conn.Find(foreignKeyValue, tableMapping);
-                    else
-                        isLoadedFromCache = true;
+                    keyValue = currentEntityForeignKeyProperty.GetValue(element, null);
+                    if (keyValue != null)
+                    {
+                        // Try to load from cache when possible
+                        if (recursive)
+                            value = (T)GetObjectFromCache(entityType, keyValue, objectCache);
+                        if (value != null)
+                            isLoadedFromCache = true;
+                    }
                 }
-            }
-            else
-            {
-                var primaryKeyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
-                if (primaryKeyValue != null)
+                else
                 {
-                    var query = string.Format("select * from [{0}] where [{1}] = ? limit 1", entityType.GetTableName(),
-                        otherEntityForeignKeyProperty.GetColumnName());
-                    value = conn.Query(tableMapping, query, primaryKeyValue).FirstOrDefault();
-                        // Its a OneToOne, take only the first
+                    keyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
+                    // Try to replace the loaded entity with the same object from the cache whenever possible
+                    value = recursive ? (T)ReplaceWithCacheObjectIfPossible(value, otherEntityPrimaryKeyProperty, objectCache, out isLoadedFromCache) : value;
                 }
 
-                // Try to replace the loaded entity with the same object from the cache whenever possible
-                value = recursive ? ReplaceWithCacheObjectIfPossible(value, otherEntityPrimaryKeyProperty, objectCache, out isLoadedFromCache) : value;
+                if (isLoadedFromCache)
+                {
+                    relationshipProperty.SetValue(element, value, null);
+                    if (value != null && inverseProperty != null)
+                    {
+                        inverseProperty.SetValue(value, element, null);
+                    }
+                }
+                else
+                {
+                    if (keyValue != null)
+                    {
+                        AddPrimaryKeyToDictionary<T>(keyValue, element, primaryKeys);
+                    }
+                }
             }
 
-            relationshipProperty.SetValue(element, value, null);
-
-            if (value != null && inverseProperty != null)
+            if (primaryKeys.Count > 0)
             {
-                inverseProperty.SetValue(value, element, null);
-            }
+                var placeHolders = string.Join(",", Enumerable.Repeat("?", primaryKeys.Count));
+                var query = string.Format("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
+                    tableMapping.PK.Name, placeHolders);
+				IList<object> values = conn.Query(tableMapping, query, primaryKeys.Keys.ToArray());
 
-            if (value != null && !isLoadedFromCache && recursive)
-            {
-                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
-                conn.GetChildrenRecursive(value, true, recursive, objectCache);
+				if (values.Count > 0) {
+					var keyProperty = values [0].GetType ().GetPrimaryKey ();
+					foreach (object value in values) {
+						var keyValue = keyProperty.GetValue (value);
+						IList<T> keyElements;
+						if (primaryKeys.TryGetValue (keyValue, out keyElements)) {
+							foreach (var keyElement in keyElements) {
+								relationshipProperty.SetValue (keyElement, value, null);
+								if (value != null && inverseProperty != null) {
+									inverseProperty.SetValue (value, keyElement, null);
+								}
+								if (value != null && recursive) {
+									SaveObjectToCache (value, otherEntityPrimaryKeyProperty.GetValue (value, null), objectCache);
+									conn.GetChildrenRecursive (value, true, recursive, objectCache);
+								}
+							}
+						}
+					}
+				}
             }
-
-            return value;
+            return elements[0];
         }
 
 
-        private static object GetManyToOneChild<T>(this SQLiteConnection conn, T element,
-            PropertyInfo relationshipProperty, 
+        private static object GetManyToOneChildren<T>(this SQLiteConnection conn, IList<T> elements,
+            PropertyInfo relationshipProperty,
             bool recursive, ObjectCache objectCache)
         {
-            var type = element.GetType();
+            var primaryKeys = new Dictionary<object, IList<T>>();
+            var type = elements[0].GetType();
             EnclosedType enclosedType;
             var entityType = relationshipProperty.GetEntityType(out enclosedType);
 
             Assert(enclosedType == EnclosedType.None, type, relationshipProperty,  "ManyToOne relationship cannot be of type List or Array");
 
             var otherEntityPrimaryKeyProperty = entityType.GetPrimaryKey();
-            Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty, 
+            Assert(otherEntityPrimaryKeyProperty != null, type, relationshipProperty,
                          "ManyToOne relationship destination must have Primary Key");
 
             var currentEntityForeignKeyProperty = type.GetForeignKeyProperty(relationshipProperty);
@@ -317,29 +344,65 @@ namespace SQLiteNetExtensions.Extensions
             var tableMapping = conn.GetMapping(entityType);
             Assert(tableMapping != null, type, relationshipProperty,  "There's no mapping table for OneToMany relationship destination");
 
-            object value = null;
-            var isLoadedFromCache = false;
-            var foreignKeyValue = currentEntityForeignKeyProperty.GetValue(element, null);
-            if (foreignKeyValue != null)
+            foreach (T element in elements)
             {
-                // Try to load from cache when possible
-                if (recursive)
-                    value = GetObjectFromCache(entityType, foreignKeyValue, objectCache);
-                if (value == null)
-                    value = conn.Find(foreignKeyValue, tableMapping);
-                else
-                    isLoadedFromCache = true;
+                object value = null;
+                var isLoadedFromCache = false;
+                var foreignKeyValue = currentEntityForeignKeyProperty.GetValue(element, null);
+                if (foreignKeyValue != null)
+                {
+                    // Try to load from cache when possible
+                    if (recursive)
+                        value = GetObjectFromCache(entityType, foreignKeyValue, objectCache);
+                    if (value == null)
+                        AddPrimaryKeyToDictionary<T>(foreignKeyValue, element, primaryKeys);
+                    else
+                        isLoadedFromCache = true;
+                }
+
+                if (isLoadedFromCache)
+                    relationshipProperty.SetValue(element, value, null);
             }
 
-            relationshipProperty.SetValue(element, value, null);
+			if (primaryKeys.Count > 0) {
+				var placeHolders = string.Join (",", Enumerable.Repeat ("?", primaryKeys.Count));
+				var query = string.Format ("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
+					                        tableMapping.PK.Name, placeHolders);
+				IList<object> values = conn.Query (tableMapping, query, primaryKeys.Keys.ToArray());
 
-            if (value != null && !isLoadedFromCache && recursive)
+				if (values.Count > 0) {
+					var keyProperty = values [0].GetType ().GetPrimaryKey ();
+					foreach (object value in values) {
+						var keyValue = keyProperty.GetValue (value);
+						IList<T> keyElements;
+						if (primaryKeys.TryGetValue (keyValue, out keyElements)) {
+							foreach (var keyElement in keyElements) {
+								relationshipProperty.SetValue (keyElement, value, null);
+								if (value != null && recursive) {
+									SaveObjectToCache (value, otherEntityPrimaryKeyProperty.GetValue (value, null), objectCache);
+									conn.GetChildrenRecursive (value, true, recursive, objectCache);
+								}
+							}
+						}
+					}
+				}
+			}
+
+            return elements[0];
+        }
+
+        private static void AddPrimaryKeyToDictionary<T>(object key, T element, Dictionary<object, IList<T>> primaryKeys)
+        {
+            IList<T> list;
+            if (!primaryKeys.TryGetValue(key, out list))
             {
-                SaveObjectToCache(value, otherEntityPrimaryKeyProperty.GetValue(value, null), objectCache);
-                conn.GetChildrenRecursive(value, true, recursive, objectCache);
+                list = new List<T>() { element };
+                primaryKeys.Add(key, list);
             }
-
-            return value;
+            else
+            {
+                list.Add(element);
+            }
         }
 
         private static IEnumerable GetOneToManyChildren<T>(this SQLiteConnection conn, T element,
@@ -366,7 +429,7 @@ namespace SQLiteNetExtensions.Extensions
 
             var inverseProperty = type.GetInverseProperty(relationshipProperty);
 
-            IList cascadeElements = new List<object>();
+            IList<T> cascadeElements = new List<T>();
             IList values = null;
             var primaryKeyValue = currentEntityPrimaryKeyProperty.GetValue(element, null);
             if (primaryKeyValue != null)
@@ -386,7 +449,7 @@ namespace SQLiteNetExtensions.Extensions
                     values = array = Array.CreateInstance(entityType, queryResults.Count);
                     
                 int i = 0;
-                foreach (var result in queryResults)
+                foreach (T result in queryResults)
                 {
                     // Replace obtained value with a cached one whenever possible
                     bool loadedFromCache = false;
@@ -417,13 +480,58 @@ namespace SQLiteNetExtensions.Extensions
 
             if (recursive)
             {
-                foreach (var child in cascadeElements)
+                if (cascadeElements.Count > 0)
                 {
-                    conn.GetChildrenRecursive(child, true, recursive, objectCache);
+                    conn.GetChildrenRecursiveBatched(cascadeElements, objectCache);
                 }
             }
 
             return values;
+        }
+
+        private static void GetChildrenRecursiveBatched<T>(this SQLiteConnection conn, IList<T> elements, ObjectCache objectCache)
+        {
+            var element = elements[0];
+            foreach (var relationshipProperty in element.GetType().GetRelationshipProperties())
+            {
+                var relationshipAttribute = relationshipProperty.GetAttribute<RelationshipAttribute>();
+                if (relationshipAttribute.IsCascadeRead)
+                {
+                    if (relationshipAttribute is OneToOneAttribute)
+                    {
+                        conn.GetOneToOneChildren(elements, relationshipProperty, true, objectCache);
+                    }
+                    else if (relationshipAttribute is OneToManyAttribute)
+                    {
+                        foreach (var e in elements)
+                        {
+                            conn.GetOneToManyChildren(e, relationshipProperty, true, objectCache);
+                        }
+                    }
+                    else if (relationshipAttribute is ManyToOneAttribute)
+                    {
+                        conn.GetManyToOneChildren(elements, relationshipProperty, true, objectCache);
+                    }
+                    else if (relationshipAttribute is ManyToManyAttribute)
+                    {
+                        foreach (var e in elements)
+                        {
+                            conn.GetManyToManyChildren(e, relationshipProperty, true, objectCache);
+                        }
+                    }
+                    else if (relationshipAttribute is TextBlobAttribute)
+                    {
+                        TextBlobOperations.GetTextBlobChild(element, relationshipProperty);
+                    }
+                }
+                else if (relationshipAttribute is TextBlobAttribute)
+                {
+                    foreach (var e in elements)
+                    {
+                        conn.GetChildRecursive(e, relationshipProperty, false, objectCache);
+                    }
+                }
+            }
         }
 
         private static IEnumerable GetManyToManyChildren<T>(this SQLiteConnection conn, T element,

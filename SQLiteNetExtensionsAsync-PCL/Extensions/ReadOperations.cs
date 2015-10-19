@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using SQLite.Net.Async;
 using SQLiteNetExtensions.Extensions;
@@ -32,17 +33,21 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// are loaded afterwards</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false) where T : class
+        public static async Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             return await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     return connectionWithLock.GetAllWithChildren(filter, recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -55,17 +60,21 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="pk">Primary key for the object to search in the database</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false) where T : class
+        public static async Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             return await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     return connectionWithLock.GetWithChildren<T>(pk, recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -80,17 +89,21 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="pk">Primary key for the object to search in the database</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false) where T : class
+        public static async Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             return await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     return connectionWithLock.FindWithChildren<T>(pk, recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -101,17 +114,21 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="element">Element used to load all the relationship properties</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task GetChildrenAsync<T>(this SQLiteAsyncConnection conn, T element, bool recursive = false)
+        public static async Task GetChildrenAsync<T>(this SQLiteAsyncConnection conn, T element, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     connectionWithLock.GetChildren(element, recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -123,17 +140,21 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="relationshipProperty">Name of the property to fetch from the database</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task GetChildAsync<T>(this SQLiteAsyncConnection conn, T element, string relationshipProperty, bool recursive = false)
+        public static async Task GetChildAsync<T>(this SQLiteAsyncConnection conn, T element, string relationshipProperty, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     connectionWithLock.GetChild(element, element.GetType().GetRuntimeProperty(relationshipProperty), recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -146,10 +167,11 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// This variant is useful to avoid spelling mistakes and make the code refactor-safe.</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task GetChildAsync<T>(this SQLiteAsyncConnection conn, T element, Expression<Func<T, object>> propertyExpression, bool recursive = false)
+        public static async Task GetChildAsync<T>(this SQLiteAsyncConnection conn, T element, Expression<Func<T, object>> propertyExpression, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await conn.GetChildAsync(element, ReflectionExtensions.GetProperty(propertyExpression), recursive).ConfigureAwait(false);
+            await conn.GetChildAsync(element, ReflectionExtensions.GetProperty(propertyExpression), recursive, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -161,17 +183,21 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="relationshipProperty">Property to load from the database</param>
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task GetChildAsync<T>(this SQLiteAsyncConnection conn, T element, PropertyInfo relationshipProperty, bool recursive = false)
+        public static async Task GetChildAsync<T>(this SQLiteAsyncConnection conn, T element, PropertyInfo relationshipProperty, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
                 using (connectionWithLock.Lock())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     connectionWithLock.GetChild(element, relationshipProperty, recursive);
                 }
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         #endregion

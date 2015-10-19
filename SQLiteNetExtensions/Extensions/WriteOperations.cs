@@ -22,6 +22,8 @@ namespace SQLiteNetExtensions.Extensions
 {
     public static class WriteOperations
     {
+        const int queryLimit = 990; //Make room for extra keys added by the code
+
         /// <summary>
         /// Enable to allow descriptive error descriptions on incorrect relationships. Enabled by default.
         /// Disable for production environments to remove the checks and reduce performance penalty
@@ -168,7 +170,7 @@ namespace SQLiteNetExtensions.Extensions
 
             objectCache = objectCache ?? new HashSet<object>();
             var insertedElements = conn.InsertElements(elements, replace, objectCache).Cast<object>().ToList();
-                
+
             foreach (var element in insertedElements) {
                 conn.InsertChildrenRecursive(element, replace, recursive, objectCache);
             }
@@ -403,7 +405,7 @@ namespace SQLiteNetExtensions.Extensions
                 }
             }
         }
-            
+
         private static void UpdateOneToManyInverseForeignKey(this SQLiteConnection conn, object element, PropertyInfo relationshipProperty)
         {
             var type = element.GetType();
@@ -447,18 +449,26 @@ namespace SQLiteNetExtensions.Extensions
                 }
             }
 
-            // Objects already updated, now change the database
-            var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", childrenKeyList.Count));
-            var query = string.Format("update [{0}] set [{1}] = ? where [{2}] in ({3})",
-                entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
-            var parameters = new List<object> { keyValue };
-            parameters.AddRange(childrenKeyList);
-            conn.Execute(query, parameters.ToArray());
 
             // Delete previous relationships
-            var deleteQuery = string.Format("update [{0}] set [{1}] = NULL where [{1}] == ? and [{2}] not in ({3})",
-                entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
-            conn.Execute(deleteQuery, parameters.ToArray());
+            var deleteQuery = string.Format("update [{0}] set [{1}] = NULL where [{1}] == ?",
+                entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName());
+            var deleteParamaters = new List<object> { keyValue };
+            conn.Execute(deleteQuery, deleteParamaters.ToArray());
+
+            var chunks = Split(childrenKeyList, queryLimit);
+            var loopTo = chunks.Count == 0 ? 1 : chunks.Count;
+            for (int i = 0; i < loopTo; i++) {
+                var chunk = chunks.Count > i ? chunks[i] :new List<object>();
+                // Objects already updated, now change the database
+                var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", chunk.Count));
+                var query = string.Format("update [{0}] set [{1}] = ? where [{2}] in ({3})",
+                    entityType.GetTableName(), inverseForeignKeyProperty.GetColumnName(), inversePrimaryKeyProperty.GetColumnName(), childrenPlaceHolders);
+
+                var parameters = new List<object> { keyValue };
+                parameters.AddRange(chunk);
+                conn.Execute(query, parameters.ToArray());
+            }
         }
 
         private static void UpdateOneToOneInverseForeignKey(this SQLiteConnection conn, object element, PropertyInfo relationshipProperty)
@@ -548,18 +558,25 @@ namespace SQLiteNetExtensions.Extensions
             // Obtain the list of children keys
             var childList = (IEnumerable)relationshipProperty.GetValue(element, null);
             var childKeyList = (from object child in childList ?? new List<object>()
-                               select otherEntityPrimaryKeyProperty.GetValue(child, null)).ToList();
+                                select otherEntityPrimaryKeyProperty.GetValue(child, null)).ToList();
 
-            // Check for already existing relationships
-            var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", childKeyList.Count));
-            var currentChildrenQuery = string.Format("select [{0}] from [{1}] where [{2}] == ? and [{0}] in ({3})",
-                otherEntityForeignKeyProperty.GetColumnName(), intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName(), childrenPlaceHolders);
-            var parameters = new List<object>{ primaryKey };
-            parameters.AddRange(childKeyList);
-            var currentChildKeyList =
-                from object child in conn.Query(conn.GetMapping(intermediateType), currentChildrenQuery, parameters.ToArray())
-                select otherEntityForeignKeyProperty.GetValue(child, null);
-            
+            List<object> currentChildKeyList = new List<object>();
+            var chunks = Split(childKeyList, queryLimit);
+            var loopTo = chunks.Count == 0 ? 1 : chunks.Count;
+            for (int i = 0; i < loopTo; i++) {
+                var chunk = chunks.Count > i ? chunks[i] : new List<object>();
+                // Check for already existing relationships
+                var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", chunk.Count));
+                var currentChildrenQuery = string.Format("select [{0}] from [{1}] where [{2}] == ? and [{0}] in ({3})",
+                    otherEntityForeignKeyProperty.GetColumnName(), intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName(), childrenPlaceHolders);
+
+                var parameters = new List<object> { primaryKey };
+                parameters.AddRange(chunk);
+                currentChildKeyList.AddRange(
+                    from object child in
+                        conn.Query(conn.GetMapping(intermediateType), currentChildrenQuery, parameters.ToArray())
+                    select otherEntityForeignKeyProperty.GetValue(child, null));
+            }
 
             // Insert missing relationships in the intermediate table
             var missingChildKeyList = childKeyList.Where(o => !currentChildKeyList.Contains(o)).ToList();
@@ -575,26 +592,38 @@ namespace SQLiteNetExtensions.Extensions
 
             conn.InsertAll(missingIntermediateObjects);
 
-            // Delete any other pending relationship
-            var deleteQuery = string.Format("delete from [{0}] where [{1}] == ? and [{2}] not in ({3})",
-                intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName(),
-                otherEntityForeignKeyProperty.GetColumnName(), childrenPlaceHolders);
-            conn.Execute(deleteQuery, parameters.ToArray());
+
+
+            for (int i = 0; i < loopTo; i++)
+            {
+                var chunk = chunks.Count > i ? chunks[i] : new List<object>();
+                var childrenPlaceHolders = string.Join(",", Enumerable.Repeat("?", chunk.Count));
+
+                // Delete any other pending relationship
+                var deleteQuery = string.Format("delete from [{0}] where [{1}] == ? and [{2}] not in ({3})",
+                    intermediateType.GetTableName(), currentEntityForeignKeyProperty.GetColumnName(),
+                    otherEntityForeignKeyProperty.GetColumnName(), childrenPlaceHolders);
+
+                var parameters = new List<object> { primaryKey };
+                parameters.AddRange(chunk);
+                conn.Execute(deleteQuery, parameters.ToArray());
+            }
+            
         }
 
         private static void DeleteAllIds(this SQLiteConnection conn, object[] primaryKeyValues, string entityName, string primaryKeyName) {
             if (primaryKeyValues == null || primaryKeyValues.Length == 0)
                 return;
 
-            const int limit = 999;
-            if (primaryKeyValues.Length <= limit) {
+            if (primaryKeyValues.Length <= queryLimit)
+            {
                 var placeholdersString = string.Join(",", Enumerable.Repeat("?", primaryKeyValues.Length));
                 var deleteQuery = string.Format("delete from [{0}] where [{1}] in ({2})", entityName, primaryKeyName, placeholdersString);
 
                 conn.Execute(deleteQuery, primaryKeyValues);
             }
             else {
-                foreach (var primaryKeys in Split(primaryKeyValues.ToList(), limit)) {
+                foreach (var primaryKeys in Split(primaryKeyValues.ToList(), queryLimit)) {
                     conn.DeleteAllIds(primaryKeys.ToArray(), entityName, primaryKeyName);
                 }
 
@@ -607,8 +636,8 @@ namespace SQLiteNetExtensions.Extensions
             for (int i = 0; i < items.Count; i += sliceSize)
                 list.Add(items.GetRange(i, Math.Min(sliceSize, items.Count - i)));
             return list;
-        } 
-            
+        }
+
         static void Assert(bool assertion, Type type, PropertyInfo property, string message) {
             if (EnableRuntimeAssertions && !assertion)
                 throw new IncorrectRelationshipException(type.Name, property != null ? property.Name : string.Empty , message);

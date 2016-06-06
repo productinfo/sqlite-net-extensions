@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using SQLite.Net.Async;
 using SQLiteNetExtensions.Extensions;
 using System.Linq.Expressions;
 
 #if USING_MVVMCROSS
+using SQLite.Net.Async;
 using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
 #elif PCL
 using SQLite.Net;
+using SQLite.Net.Async;
 using SQLite.Net.Attributes;
 #else
 using SQLite;
@@ -35,7 +36,13 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        public static async Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
+            where T
+            #if USING_PRAECLARUM
+            : new()
+            #else
+            : class
+            #endif
         {
             return await Task.Run(() =>
             {
@@ -62,7 +69,13 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        public static async Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
+            where T
+            #if USING_PRAECLARUM
+            : new()
+            #else
+            : class
+            #endif
         {
             return await Task.Run(() =>
             {
@@ -91,7 +104,13 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static async Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        public static async Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
+            where T
+            #if USING_PRAECLARUM
+            : new()
+            #else
+            : class
+            #endif
         {
             return await Task.Run(() =>
             {

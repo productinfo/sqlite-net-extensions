@@ -45,7 +45,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static List<T> GetAllWithChildren<T>(this SQLiteConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS
+                                                                                                        #if USING_MVVMCROSS || USING_PRAECLARUM
                                                                                                         : new()
                                                                                                         #else
                                                                                                         : class
@@ -79,7 +79,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static T GetWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS
+                                                                                                        #if USING_MVVMCROSS || USING_PRAECLARUM
                                                                                                         : new()
                                                                                                         #else
                                                                                                         : class
@@ -104,7 +104,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static T FindWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS
+                                                                                                        #if USING_MVVMCROSS || USING_PRAECLARUM
                                                                                                         : new()
                                                                                                         #else
                                                                                                         : class

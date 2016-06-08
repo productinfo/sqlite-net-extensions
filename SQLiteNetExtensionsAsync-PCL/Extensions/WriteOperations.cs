@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using SQLiteNetExtensions.Exceptions;
 using SQLiteNetExtensions.Extensions;
 #if USING_MVVMCROSS
 using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
@@ -18,8 +14,6 @@ using SQLite.Net.Attributes;
 #else
 using SQLite;
 #endif
-using SQLiteNetExtensions.Attributes;
-using SQLiteNetExtensions.Extensions.TextBlob;
 
 namespace SQLiteNetExtensionsAsync.Extensions
 {
@@ -38,17 +32,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// </summary>
         /// <param name="conn">SQLite Net connection object</param>
         /// <param name="element">Object to be updated. Must already have been inserted in the database</param>
-        public static async Task UpdateWithChildrenAsync(this SQLiteAsyncConnection conn, object element)
+        public static Task UpdateWithChildrenAsync(this SQLiteAsyncConnection conn, object element)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.UpdateWithChildren(element);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.UpdateWithChildren(element);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Inserts the element and all the relationships that are annotated with <c>CascadeOperation.CascadeInsert</c>
@@ -62,17 +56,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="conn">SQLite Net connection object</param>
         /// <param name="element">Object to be inserted.</param>
         /// <param name="recursive">If set to <c>true</c> all the insert-cascade properties will be inserted</param>
-        public static async Task InsertWithChildrenAsync(this SQLiteAsyncConnection conn, object element, bool recursive = false)
+        public static Task InsertWithChildrenAsync(this SQLiteAsyncConnection conn, object element, bool recursive = false)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.InsertWithChildren(element, recursive);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.InsertWithChildren(element, recursive);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Inserts or replace the element and all the relationships that are annotated with
@@ -86,17 +80,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="conn">SQLite Net connection object</param>
         /// <param name="element">Object to be inserted.</param>
         /// <param name="recursive">If set to <c>true</c> all the insert-cascade properties will be inserted</param>
-        public static async Task InsertOrReplaceWithChildrenAsync(this SQLiteAsyncConnection conn, object element, bool recursive = false)
+        public static Task InsertOrReplaceWithChildrenAsync(this SQLiteAsyncConnection conn, object element, bool recursive = false)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.InsertOrReplaceWithChildren(element, recursive);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.InsertOrReplaceWithChildren(element, recursive);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Inserts all the elements and all the relationships that are annotated with <c>CascadeOperation.CascadeInsert</c>
@@ -110,17 +104,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="conn">SQLite Net connection object</param>
         /// <param name="elements">Objects to be inserted.</param>
         /// <param name="recursive">If set to <c>true</c> all the insert-cascade properties will be inserted</param>
-        public static async Task InsertAllWithChildrenAsync(this SQLiteAsyncConnection conn, IEnumerable elements, bool recursive = false)
+        public static Task InsertAllWithChildrenAsync(this SQLiteAsyncConnection conn, IEnumerable elements, bool recursive = false)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.InsertAllWithChildren(elements, recursive);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.InsertAllWithChildren(elements, recursive);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Inserts or replace all the elements and all the relationships that are annotated with
@@ -134,17 +128,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="conn">SQLite Net connection object</param>
         /// <param name="elements">Objects to be inserted.</param>
         /// <param name="recursive">If set to <c>true</c> all the insert-cascade properties will be inserted</param>
-        public static async Task InsertOrReplaceAllWithChildrenAsync(this SQLiteAsyncConnection conn, IEnumerable elements, bool recursive = false)
+        public static Task InsertOrReplaceAllWithChildrenAsync(this SQLiteAsyncConnection conn, IEnumerable elements, bool recursive = false)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.InsertOrReplaceAllWithChildren(elements, recursive);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.InsertOrReplaceAllWithChildren(elements, recursive);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Deletes all the objects passed as parameters from the database.
@@ -156,17 +150,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="recursive">If set to <c>true</c> all relationships marked with 'CascadeDelete' will be
         /// deleted from the database recursively</param>
         /// <param name="objects">Objects to be deleted from the database</param>
-        public static async Task DeleteAllAsync(this SQLiteAsyncConnection conn, IEnumerable objects, bool recursive = false)
+        public static Task DeleteAllAsync(this SQLiteAsyncConnection conn, IEnumerable objects, bool recursive = false)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.DeleteAll(objects, recursive);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.DeleteAll(objects, recursive);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Deletes all the objects passed as parameters from the database.
@@ -178,17 +172,17 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="recursive">If set to <c>true</c> all relationships marked with 'CascadeDelete' will be
         /// deleted from the database recursively</param>
         /// <param name="element">Object to be deleted from the database</param>
-        public static async Task DeleteAsync(this SQLiteAsyncConnection conn, object element, bool recursive)
+        public static Task DeleteAsync(this SQLiteAsyncConnection conn, object element, bool recursive)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.Delete(element, recursive);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.Delete(element, recursive);
+				 }
+			 });
+		}
 
         /// <summary>
         /// Deletes all the objects passed with IDs equal to the passed parameters from the database.
@@ -197,16 +191,16 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="conn">SQLite Net connection object</param>
         /// <param name="primaryKeyValues">Primary keys of the objects to be deleted from the database</param>
         /// <typeparam name="T">The Entity type, it should match de database entity type</typeparam>
-        public static async Task DeleteAllIdsAsync<T>(this SQLiteAsyncConnection conn, IEnumerable<object> primaryKeyValues)
+        public static Task DeleteAllIdsAsync<T>(this SQLiteAsyncConnection conn, IEnumerable<object> primaryKeyValues)
         {
-            await Task.Run(() =>
-            {
-                var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
-                using (connectionWithLock.Lock())
-                {
-                    connectionWithLock.DeleteAllIds<T>(primaryKeyValues);
-                }
-            }).ConfigureAwait(false);
-        }
+			return Task.Run(() =>
+			 {
+				 var connectionWithLock = SqliteAsyncConnectionWrapper.Lock(conn);
+				 using (connectionWithLock.Lock())
+				 {
+					 connectionWithLock.DeleteAllIds<T>(primaryKeyValues);
+				 }
+			 });
+		}
     }
 }

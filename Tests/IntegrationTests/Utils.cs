@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Foundation;
@@ -8,6 +9,7 @@ using SQLite.Net.Async;
 using SQLite.Net.Platform.XamarinIOS;
 #else
 using SQLite;
+using SQLitePCL;
 #endif
 
 namespace SQLiteNetExtensions.IntegrationTests
@@ -36,11 +38,18 @@ namespace SQLiteNetExtensions.IntegrationTests
 #if USING_MVVMCROSS
 			return new SQLiteConnection(new SQLitePlatformIOS(), DatabaseFilePath);
 #else
-			return new SQLiteConnection(DatabaseFilePath);
+	        var con = new SQLiteConnection(DatabaseFilePath);
+	        raw.sqlite3_trace(con.Handle, Log, null);
+			return con;
 #endif
 		}
 
-		public static SQLiteAsyncConnection CreateAsyncConnection()
+	    private static void Log(object userData, string statement)
+	    {
+		    Console.WriteLine(statement);
+	    }
+
+	    public static SQLiteAsyncConnection CreateAsyncConnection()
 		{
 #if USING_MVVMCROSS
 			var connectionString = new SQLiteConnectionString(DatabaseFilePath, false);

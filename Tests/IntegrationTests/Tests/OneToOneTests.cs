@@ -236,7 +236,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Fetch (yet empty) the relationship
             conn.GetChildren(objectF);
-            Assert.Null(objectF.ObjectE);
+            Assert.Null(objectF.ObjectE); // TODO CURRENTLY FAILED!
 
             // Set the relationship using IDs
             objectE.ObjectFKey = objectF.Id;

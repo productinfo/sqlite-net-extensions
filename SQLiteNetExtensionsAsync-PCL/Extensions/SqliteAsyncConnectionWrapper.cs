@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Reflection;
-#if USING_PRAECLARUM
+#if !USING_MVVMCROSS
 using SQLite;
 using SQLiteConnectionWithLock = SQLite.SQLiteConnection;
-#else
-using SQLite.Net;
-using SQLite.Net.Async;
 #endif
 
 namespace SQLiteNetExtensionsAsync.Extensions
@@ -25,8 +22,8 @@ namespace SQLiteNetExtensionsAsync.Extensions
         }
     }
 
-#if USING_PRAECLARUM
-    public static class SqliteConnectionExtensions
+#if !USING_MVVMCROSS
+	public static class SqliteConnectionExtensions
     {
         static public IDisposable Lock(this SQLiteConnectionWithLock connection)
         {

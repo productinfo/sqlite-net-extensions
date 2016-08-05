@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions.TextBlob;
-using System.Linq.Expressions;
 using SQLiteNetExtensions.Exceptions;
-using System.Collections.ObjectModel;
 
 #if USING_MVVMCROSS
-using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
-#elif PCL
 using SQLite.Net;
-using SQLite.Net.Attributes;
 #else
 using SQLite;
 #endif
@@ -44,12 +41,12 @@ namespace SQLiteNetExtensions.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static List<T> GetAllWithChildren<T>(this SQLiteConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS || USING_PRAECLARUM
-                                                                                                        : new()
-                                                                                                        #else
-                                                                                                        : class
-                                                                                                        #endif
+        public static List<T> GetAllWithChildren<T>(this SQLiteConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false)
+#if USING_MVVMCROSS
+			where T : class
+#else
+			where T : new()
+#endif
         {
             var elements = conn.Table<T>();
             if (filter != null)
@@ -78,14 +75,14 @@ namespace SQLiteNetExtensions.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static T GetWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS || USING_PRAECLARUM
-                                                                                                        : new()
-                                                                                                        #else
-                                                                                                        : class
-                                                                                                        #endif
-        {
-            var element = conn.Get<T>(pk);
+        public static T GetWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false)
+#if USING_MVVMCROSS
+			where T : class
+#else
+			where T : new()
+#endif
+		{
+			var element = conn.Get<T>(pk);
             conn.GetChildren(element, recursive);
             return element;
         }
@@ -103,14 +100,14 @@ namespace SQLiteNetExtensions.Extensions
         /// <param name="recursive">If set to <c>true</c> all the relationships with
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
-        public static T FindWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false) where T
-                                                                                                        #if USING_MVVMCROSS || USING_PRAECLARUM
-                                                                                                        : new()
-                                                                                                        #else
-                                                                                                        : class
-                                                                                                        #endif
-        {
-            var element = conn.Find<T>(pk);
+        public static T FindWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false)
+#if USING_MVVMCROSS
+			where T : class
+#else
+			where T : new()
+#endif
+		{
+			var element = conn.Find<T>(pk);
             if (!EqualityComparer<T>.Default.Equals(element, default(T)))
                 conn.GetChildren(element, recursive);
             return element;
@@ -176,9 +173,9 @@ namespace SQLiteNetExtensions.Extensions
             conn.GetChildRecursive(element, relationshipProperty, recursive, new ObjectCache());
         }
 
-        #endregion
+#endregion
 
-        #region Private methods
+#region Private methods
         private static void GetChildrenRecursive(this SQLiteConnection conn, object element, bool onlyCascadeChildren, bool recursive, ObjectCache objectCache =  null) {
             objectCache = objectCache ?? new ObjectCache();
 
@@ -678,6 +675,6 @@ namespace SQLiteNetExtensions.Extensions
             typeDict[primaryKey] = element;
         }
 
-        #endregion
+#endregion
     }
 }

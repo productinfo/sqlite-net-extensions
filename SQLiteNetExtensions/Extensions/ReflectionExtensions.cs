@@ -8,9 +8,6 @@ using System.Linq.Expressions;
 using System.Collections.ObjectModel;
 
 #if USING_MVVMCROSS
-using Cirrious.MvvmCross.Community.Plugins.Sqlite;
-#elif PCL
-using SQLite.Net;
 using SQLite.Net.Attributes;
 #else
 using SQLite;

@@ -9,10 +9,6 @@ using System.Linq.Expressions;
 #if USING_MVVMCROSS
 using SQLite.Net.Async;
 using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
-#elif PCL
-using SQLite.Net;
-using SQLite.Net.Async;
-using SQLite.Net.Attributes;
 #else
 using SQLite;
 #endif
@@ -37,12 +33,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static Task<List<T>> GetAllWithChildrenAsync<T>(this SQLiteAsyncConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
-            where T
-            #if USING_PRAECLARUM
-            : new()
-            #else
-            : class
-            #endif
+            where T : new()
         {
             return Task.Run(() =>
             {
@@ -70,12 +61,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static Task<T> GetWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
-            where T
-            #if USING_PRAECLARUM
-            : new()
-            #else
-            : class
-            #endif
+            where T : new()
         {
             return Task.Run(() =>
             {
@@ -105,12 +91,7 @@ namespace SQLiteNetExtensionsAsync.Extensions
         /// <param name="cancellationToken">Cancellation token</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static Task<T> FindWithChildrenAsync<T>(this SQLiteAsyncConnection conn, object pk, bool recursive = false, CancellationToken cancellationToken = default(CancellationToken))
-            where T
-            #if USING_PRAECLARUM
-            : new()
-            #else
-            : class
-            #endif
+            where T : new()
         {
             return Task.Run(() =>
             {

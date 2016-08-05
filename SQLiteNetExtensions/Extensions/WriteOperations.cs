@@ -3,20 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Exceptions;
-
+using SQLiteNetExtensions.Extensions.TextBlob;
 
 #if USING_MVVMCROSS
-using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
-using Cirrious.MvvmCross.Community.Plugins.Sqlite;
-#elif PCL
 using SQLite.Net;
 using SQLite.Net.Attributes;
 #else
 using SQLite;
 #endif
-using SQLiteNetExtensions.Attributes;
-using SQLiteNetExtensions.Extensions.TextBlob;
 
 namespace SQLiteNetExtensions.Extensions
 {

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SQLiteNetExtensions-MvvmCross</id>
-    <version>2.0.0-alpha1</version>
+    <version>2.0.0-alpha2</version>
     <title>SQLite.Net Extensions-MvvmCross</title>
     <authors>TwinCoders</authors>
     <owners>TwinCoders</owners>
@@ -14,8 +14,8 @@
     <copyright>Copyright 2014-16</copyright>
     <tags>sqlite sqlite-net net extensions orm cascade recursive</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="6.0.5" />
-      <dependency id="MvvmCross.Community.Plugin.Sqlite" version="3.1.1" />
+      <dependency id="Newtonsoft.Json" version="9.0.1" />
+      <dependency id="MvvmCross.Community.Plugin.Sqlite" version="4.3.4" />
     </dependencies>
   </metadata>
 

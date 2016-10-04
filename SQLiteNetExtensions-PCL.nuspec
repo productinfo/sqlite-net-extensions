@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SQLiteNetExtensions</id>
-    <version>2.0.0-alpha1</version>
+    <version>2.0.0-alpha2</version>
     <title>SQLite.Net Extensions-PCL</title>
     <authors>TwinCoders</authors>
     <owners>TwinCoders</owners>
@@ -15,7 +15,7 @@
     <tags>sqlite sqlite-net net extensions orm cascade recursive</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="9.0.1" />
-      <dependency id="sqlite-net-pcl" version="1.1.2" />
+      <dependency id="sqlite-net-pcl" version="1.2.0" />
     </dependencies>
   </metadata>
 

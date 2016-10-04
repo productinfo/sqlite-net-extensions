@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Reflection;
-#if !USING_MVVMCROSS
 using SQLite;
-using SQLiteConnectionWithLock = SQLite.SQLiteConnection;
-#endif
 
 namespace SQLiteNetExtensionsAsync.Extensions
 {
@@ -22,7 +19,6 @@ namespace SQLiteNetExtensionsAsync.Extensions
         }
     }
 
-#if !USING_MVVMCROSS
 	public static class SqliteConnectionExtensions
     {
         static public IDisposable Lock(this SQLiteConnectionWithLock connection)
@@ -31,5 +27,4 @@ namespace SQLiteNetExtensionsAsync.Extensions
             return (IDisposable)lockMethod.Invoke(connection, null);
         }
     }
-#endif
 }

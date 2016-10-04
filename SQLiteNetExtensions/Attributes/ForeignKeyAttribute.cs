@@ -1,10 +1,5 @@
 ﻿using System;
-
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
 using SQLite;
-#endif
 
 namespace SQLiteNetExtensions.Attributes
 {

@@ -8,12 +8,7 @@ using System.Reflection;
 using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions.TextBlob;
 using SQLiteNetExtensions.Exceptions;
-
-#if USING_MVVMCROSS
-using SQLite.Net;
-#else
 using SQLite;
-#endif
 
 namespace SQLiteNetExtensions.Extensions
 {
@@ -42,11 +37,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static List<T> GetAllWithChildren<T>(this SQLiteConnection conn, Expression<Func<T, bool>> filter = null, bool recursive = false)
-#if USING_MVVMCROSS
-			where T : class
-#else
 			where T : new()
-#endif
         {
             var elements = conn.Table<T>();
             if (filter != null)
@@ -76,11 +67,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static T GetWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false)
-#if USING_MVVMCROSS
-			where T : class
-#else
 			where T : new()
-#endif
 		{
 			var element = conn.Get<T>(pk);
             conn.GetChildren(element, recursive);
@@ -101,11 +88,7 @@ namespace SQLiteNetExtensions.Extensions
         /// <c>CascadeOperation.CascadeRead</c> will be loaded recusively.</param>
         /// <typeparam name="T">Entity type where the object should be fetched from</typeparam>
         public static T FindWithChildren<T>(this SQLiteConnection conn, object pk, bool recursive = false)
-#if USING_MVVMCROSS
-			where T : class
-#else
 			where T : new()
-#endif
 		{
 			var element = conn.Find<T>(pk);
             if (!EqualityComparer<T>.Default.Equals(element, default(T)))

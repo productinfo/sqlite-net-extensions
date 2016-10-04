@@ -5,13 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SQLiteNetExtensions.Extensions;
 using System.Linq.Expressions;
-
-#if USING_MVVMCROSS
-using SQLite.Net.Async;
-using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
-#else
 using SQLite;
-#endif
 
 namespace SQLiteNetExtensionsAsync.Extensions
 {

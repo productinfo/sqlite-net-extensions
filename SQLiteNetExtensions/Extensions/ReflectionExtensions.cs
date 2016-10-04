@@ -6,12 +6,7 @@ using System.Reflection;
 using SQLiteNetExtensions.Attributes;
 using System.Linq.Expressions;
 using System.Collections.ObjectModel;
-
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
 using SQLite;
-#endif
 
 namespace SQLiteNetExtensions.Extensions
 {

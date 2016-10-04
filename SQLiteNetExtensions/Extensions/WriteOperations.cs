@@ -6,13 +6,7 @@ using System.Reflection;
 using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Exceptions;
 using SQLiteNetExtensions.Extensions.TextBlob;
-
-#if USING_MVVMCROSS
-using SQLite.Net;
-using SQLite.Net.Attributes;
-#else
 using SQLite;
-#endif
 
 namespace SQLiteNetExtensions.Extensions
 {

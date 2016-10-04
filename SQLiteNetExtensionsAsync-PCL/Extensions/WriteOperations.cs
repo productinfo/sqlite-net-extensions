@@ -2,15 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SQLiteNetExtensions.Extensions;
-
-#if USING_MVVMCROSS
-using SQLiteConnection = Cirrious.MvvmCross.Community.Plugins.Sqlite.ISQLiteConnection;
-using Cirrious.MvvmCross.Community.Plugins.Sqlite;
-using SQLite.Net;
-using SQLite.Net.Async;
-#else
 using SQLite;
-#endif
 
 namespace SQLiteNetExtensionsAsync.Extensions
 {

@@ -5,6 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
+using SQLite;
 
 #if USING_MVVMCROSS
 using SQLite.Net.Attributes;

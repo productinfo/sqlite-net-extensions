@@ -5,6 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
+using SQLite;
 
 #if USING_MVVMCROSS
 using SQLite.Net.Attributes;
@@ -441,12 +442,12 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             {
                 var objectA = objectsA[i];
                 var childrenCount = i + 1;
-                var storedChildKeyList = (from ClassAClassB ab in conn.Table<ClassAClassB>()
+                List<int> storedChildKeyList = (from ClassAClassB ab in conn.Table<ClassAClassB>()
                                           where ab.ClassAId == objectA.Id
                                           select ab.ClassBId).ToList();
                                          
 
-                Assert.AreEqual(childrenCount, storedChildKeyList.Count, "Relationship count is not correct");
+                Assert.AreEqual(childrenCount, storedChildKeyList.Count(), "Relationship count is not correct");
                 var expectedChildIds = objectsB.GetRange(0, childrenCount).Select(objectB => objectB.Id).ToList();
                 foreach (var objectBKey in storedChildKeyList)
                 {
@@ -567,7 +568,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             {
                 var objectA = objectsA[i];
 
-                var storedChildKeyList = (from ClassAClassB ab in conn.Table<ClassAClassB>()
+                List<int> storedChildKeyList = (from ClassAClassB ab in conn.Table<ClassAClassB>()
                                           where ab.ClassAId == objectA.Id
                                           select ab.ClassBId).ToList();
 

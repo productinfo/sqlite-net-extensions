@@ -1,5 +1,3 @@
-This is a Fork of https://bitbucket.org/twincoders/sqlite-net-extensions that uses the latest version of sqlite-net-pcl by Frank A. Krueger. Will try to keep up to date with the latest versions.
-
 # SQLite-Net Extensions
 
 [SQLite-Net Extensions](https://bitbucket.org/twincoders/sqlite-net-extensions) is a very simple ORM that provides **one-to-one**, **one-to-many**, **many-to-one**, **many-to-many**, **inverse** and **text-blobbed** relationships on top of the [sqlite-net library](https://github.com/praeclarum/sqlite-net).
@@ -111,7 +109,7 @@ Here's how we'll create, read and update the entities:
     db.CreateTable<Valuation>();
 
     var euro = new Stock() {
-        Symbol = "â‚¬"
+        Symbol = "€"
     };
     db.Insert(euro);   // Insert the object in the database
 
@@ -151,7 +149,7 @@ The complexity of the sample can be reduced using recursive operations, that are
     };
 
     var euro = new Stock {
-        Symbol = "â‚¬",
+        Symbol = "€",
         Valuations = new List<Valuation> { valuation }
     };
 

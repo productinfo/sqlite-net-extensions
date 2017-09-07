@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Foundation;
+using SQLite;
 
 #if USING_MVVMCROSS
 using SQLite.Net;

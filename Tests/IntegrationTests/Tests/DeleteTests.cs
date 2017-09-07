@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using SQLiteNetExtensions.Extensions;
+using SQLite;
 
 #if USING_MVVMCROSS
 using SQLite.Net.Attributes;

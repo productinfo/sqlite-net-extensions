@@ -274,13 +274,20 @@ namespace SQLiteNetExtensions.Extensions
 
             if (primaryKeys.Count > 0)
             {
+				string columnName;
+				if (otherEntityForeignKeyProperty != null) {
+					columnName = otherEntityForeignKeyProperty.GetColumnName();
+				} else {
+					columnName = tableMapping.PK.Name;
+				}
+
                 var placeHolders = string.Join(",", Enumerable.Repeat("?", primaryKeys.Count));
                 var query = string.Format("select * from [{0}] where [{1}] in ({2})", tableMapping.TableName,
-                    tableMapping.PK.Name, placeHolders);
+                    columnName, placeHolders);
 				IList<object> values = conn.Query(tableMapping, query, primaryKeys.Keys.ToArray());
 
 				if (values.Count > 0) {
-					var keyProperty = values [0].GetType ().GetPrimaryKey ();
+					var keyProperty = otherEntityForeignKeyProperty ?? values[0].GetType().GetPrimaryKey();
 					foreach (object value in values) {
 						var keyValue = keyProperty.GetValue (value);
 						IList<T> keyElements;

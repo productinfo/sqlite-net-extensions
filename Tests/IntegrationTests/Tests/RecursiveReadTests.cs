@@ -6,19 +6,14 @@ using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
 using SQLite;
 
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
-using SQLite;
-#endif
-
 namespace SQLiteNetExtensions.IntegrationTests.Tests
 {
     [TestFixture]
     public class RecursiveReadTests
     {
         #region TestOneToOneCascadeWithInverse
-        public class PassportWithForeignKey {
+        public class PassportWithForeignKey
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -31,7 +26,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             public PersonNoForeignKey Owner { get; set; }
         }
 
-        public class PersonNoForeignKey {
+        public class PersonNoForeignKey
+        {
             [PrimaryKey, AutoIncrement]
             public int Identifier { get; set; }
 
@@ -43,7 +39,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToOneCascadeWithInverse() {
+        public void TestOneToOneCascadeWithInverse()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<PassportWithForeignKey>();
             conn.DropTable<PersonNoForeignKey>();
@@ -80,7 +77,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// Same test that TestOneToOneCascadeWithInverse but fetching the passport instead of the person
         /// </summary>
         [Test]
-        public void TestOneToOneCascadeWithInverseReversed() {
+        public void TestOneToOneCascadeWithInverseReversed()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<PassportWithForeignKey>();
             conn.DropTable<PersonNoForeignKey>();
@@ -106,7 +104,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         #endregion
 
         #region TestOneToOneCascadeWithInverseDoubleForeignKey
-        public class PassportWithForeignKeyDouble {
+        public class PassportWithForeignKeyDouble
+        {
             [PrimaryKey]
             public int Id { get; set; }
 
@@ -119,7 +118,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             public PersonWithForeignKey Owner { get; set; }
         }
 
-        public class PersonWithForeignKey {
+        public class PersonWithForeignKey
+        {
             [PrimaryKey]
             public int Identifier { get; set; }
 
@@ -134,7 +134,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToOneCascadeWithInverseDoubleForeignKey() {
+        public void TestOneToOneCascadeWithInverseDoubleForeignKey()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<PassportWithForeignKeyDouble>();
             conn.DropTable<PersonWithForeignKey>();
@@ -162,7 +163,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// Same test that TestOneToOneCascadeWithInverseDoubleForeignKey but fetching the passport instead of the person
         /// </summary>
         [Test]
-        public void TestOneToOneCascadeWithInverseDoubleForeignKeyReversed() {
+        public void TestOneToOneCascadeWithInverseDoubleForeignKeyReversed()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<PassportWithForeignKeyDouble>();
             conn.DropTable<PersonWithForeignKey>();
@@ -189,7 +191,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
 
         #region OneToManyCascadeWithInverse
-        public class Customer {
+        public class Customer
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -200,7 +203,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Table("Orders")] // 'Order' is a reserved keyword
-        public class Order {
+        public class Order
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -215,7 +219,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToManyCascadeWithInverse() {
+        public void TestOneToManyCascadeWithInverse()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Customer>();
             conn.DropTable<Order>();
@@ -223,7 +228,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<Order>();
 
             var customer = new Customer { Name = "John Smith" };
-            var orders = new []
+            var orders = new[]
             {
                 new Order { Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                 new Order { Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -265,7 +270,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// one of the orders
         /// </summary>
         [Test]
-        public void TestManyToOneCascadeWithInverse() {
+        public void TestManyToOneCascadeWithInverse()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Customer>();
             conn.DropTable<Order>();
@@ -273,7 +279,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<Order>();
 
             var customer = new Customer { Name = "John Smith" };
-            var orders = new []
+            var orders = new[]
             {
                 new Order { Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                 new Order { Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -316,7 +322,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         #endregion
 
         #region ManyToManyCascadeWithSameClassRelationship
-        public class TwitterUser {
+        public class TwitterUser
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -331,7 +338,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true)]
             public List<TwitterUser> Followers { get; set; }
 
-            public override bool Equals(object obj) {
+            public override bool Equals(object obj)
+            {
                 var other = obj as TwitterUser;
                 return other != null && Name.Equals(other.Name);
             }
@@ -342,13 +350,15 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         // Intermediate class, not used directly anywhere in the code, only in ManyToMany attributes and table creation
-        public class FollowerLeaderRelationshipTable {
+        public class FollowerLeaderRelationshipTable
+        {
             public int LeaderId { get; set; }
             public int FollowerId { get; set; }
         }
 
         [Test]
-        public void TestManyToManyCascadeWithSameClassRelationship() {
+        public void TestManyToManyCascadeWithSameClassRelationship()
+        {
             // We will configure the following scenario
             // 'John' follows 'Peter' and 'Thomas'
             // 'Thomas' follows 'John'
@@ -397,20 +407,21 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             var anthony = new TwitterUser { Name = "anthony" };
             var peter = new TwitterUser { Name = "Peter" };
 
-            var allUsers = new []{ john, thomas, will, claire, jaime, mark, martha, anthony, peter };
+            var allUsers = new[] { john, thomas, will, claire, jaime, mark, martha, anthony, peter };
             conn.InsertAll(allUsers);
 
-            john.FollowingUsers = new List<TwitterUser>{ peter, thomas };
-            thomas.FollowingUsers = new List<TwitterUser>{ john };
-            will.FollowingUsers = new List<TwitterUser>{ claire };
-            claire.FollowingUsers = new List<TwitterUser>{ will };
-            jaime.FollowingUsers = new List<TwitterUser>{ peter, thomas, mark };
+            john.FollowingUsers = new List<TwitterUser> { peter, thomas };
+            thomas.FollowingUsers = new List<TwitterUser> { john };
+            will.FollowingUsers = new List<TwitterUser> { claire };
+            claire.FollowingUsers = new List<TwitterUser> { will };
+            jaime.FollowingUsers = new List<TwitterUser> { peter, thomas, mark };
             mark.FollowingUsers = new List<TwitterUser>();
-            martha.FollowingUsers = new List<TwitterUser>{ anthony };
-            anthony.FollowingUsers = new List<TwitterUser>{ peter };
-            peter.FollowingUsers = new List<TwitterUser>{ martha };
+            martha.FollowingUsers = new List<TwitterUser> { anthony };
+            anthony.FollowingUsers = new List<TwitterUser> { peter };
+            peter.FollowingUsers = new List<TwitterUser> { martha };
 
-            foreach (var user in allUsers) {
+            foreach (var user in allUsers)
+            {
                 conn.UpdateWithChildren(user);
             }
 
@@ -448,7 +459,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         #endregion
 
         #region InsertTextBlobPropertiesRecursive
-        class Teacher {
+        class Teacher
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
             public string Name { get; set; }
@@ -457,7 +469,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             public List<Student> Students { get; set; }
         }
 
-        class Student {
+        class Student
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
             public string Name { get; set; }
@@ -474,20 +487,23 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
         }
 
-        class Address {
+        class Address
+        {
             public string Street { get; set; }
             public string Town { get; set; }
         }
 
         [Test]
-        public void TestInsertTextBlobPropertiesRecursive() {
+        public void TestInsertTextBlobPropertiesRecursive()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Student>();
             conn.DropTable<Teacher>();
             conn.CreateTable<Student>();
             conn.CreateTable<Teacher>();
 
-            var teacher = new Teacher {
+            var teacher = new Teacher
+            {
                 Name = "John Smith"
             };
             conn.Insert(teacher);
@@ -523,7 +539,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             var dbTeacher = conn.GetWithChildren<Teacher>(teacher.Id, recursive: true);
 
-            foreach (var student in students) {
+            foreach (var student in students)
+            {
                 var dbStudent = dbTeacher.Students.Find(s => s.Id == student.Id);
                 Assert.NotNull(dbStudent);
                 Assert.NotNull(dbStudent.Address);

@@ -5,12 +5,6 @@ using NUnit.Framework;
 using SQLiteNetExtensions.Extensions;
 using SQLite;
 
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
-using SQLite;
-#endif
-
 namespace SQLiteNetExtensions.IntegrationTests.Tests
 {
     [TestFixture]
@@ -35,7 +29,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestDeleteAllGuidPK() {
+        public void TestDeleteAllGuidPK()
+        {
             // In this test we will create three elements in the database and delete
             // two of them using DeleteAll extension method
 
@@ -77,13 +72,15 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Verify that the elements have been deleted correctly
             Assert.AreEqual(elementsList.Count - elementsToDelete.Count, conn.Table<DummyClassGuidPK>().Count());
-            foreach (var deletedElement in elementsToDelete) {
+            foreach (var deletedElement in elementsToDelete)
+            {
                 Assert.IsNull(conn.Find<DummyClassGuidPK>(deletedElement.Id));
             }
         }
 
         [Test]
-        public void TestDeleteAllIntPK() {
+        public void TestDeleteAllIntPK()
+        {
             // In this test we will create three elements in the database and delete
             // two of them using DeleteAll extension method
 
@@ -122,13 +119,15 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Verify that the elements have been deleted correctly
             Assert.AreEqual(elementsList.Count - elementsToDelete.Count, conn.Table<DummyClassIntPK>().Count());
-            foreach (var deletedElement in elementsToDelete) {
+            foreach (var deletedElement in elementsToDelete)
+            {
                 Assert.IsNull(conn.Find<DummyClassIntPK>(deletedElement.Id));
             }
         }
 
         [Test]
-        public void TestDeleteAllThousandObjects() {
+        public void TestDeleteAllThousandObjects()
+        {
             // In this test we will create thousands of elements in the database all but one with
             // the DeleteAll method
 
@@ -137,7 +136,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<DummyClassIntPK>();
 
             var elementsList = Enumerable.Range(0, 10000).Select(i =>
-                new DummyClassIntPK {
+                new DummyClassIntPK
+                {
                     Foo = "Foo " + i,
                     Bar = "Bar " + i
                 }
@@ -156,13 +156,15 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Verify that the elements have been deleted correctly
             Assert.AreEqual(elementsList.Count - elementsToDelete.Count, conn.Table<DummyClassIntPK>().Count());
-            foreach (var deletedElement in elementsToDelete) {
+            foreach (var deletedElement in elementsToDelete)
+            {
                 Assert.IsNull(conn.Find<DummyClassIntPK>(deletedElement.Id));
             }
         }
 
         [Test]
-        public void TestDeleteAllIdsGuidPK() {
+        public void TestDeleteAllIdsGuidPK()
+        {
             // In this test we will create three elements in the database and delete
             // two of them using DeleteAllIds extension method
 
@@ -205,13 +207,15 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Verify that the elements have been deleted correctly
             Assert.AreEqual(elementsList.Count - elementsToDelete.Count, conn.Table<DummyClassGuidPK>().Count());
-            foreach (var deletedElement in elementsToDelete) {
+            foreach (var deletedElement in elementsToDelete)
+            {
                 Assert.IsNull(conn.Find<DummyClassGuidPK>(deletedElement.Id));
             }
         }
 
         [Test]
-        public void TestDeleteAllIdsIntPK() {
+        public void TestDeleteAllIdsIntPK()
+        {
             // In this test we will create three elements in the database and delete
             // two of them using DeleteAllIds extension method
 
@@ -251,7 +255,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Verify that the elements have been deleted correctly
             Assert.AreEqual(elementsList.Count - elementsToDelete.Count, conn.Table<DummyClassIntPK>().Count());
-            foreach (var deletedElement in elementsToDelete) {
+            foreach (var deletedElement in elementsToDelete)
+            {
                 Assert.IsNull(conn.Find<DummyClassIntPK>(deletedElement.Id));
             }
         }

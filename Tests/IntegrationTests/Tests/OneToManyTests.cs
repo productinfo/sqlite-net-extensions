@@ -7,12 +7,6 @@ using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
 using SQLite;
 
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
-using SQLite;
-#endif
-
 namespace SQLiteNetExtensions.IntegrationTests.Tests
 {
 
@@ -37,7 +31,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
-            [ForeignKey(typeof (O2MClassA)), Column("class_a_id")]
+            [ForeignKey(typeof(O2MClassA)), Column("class_a_id")]
             public int ClassAKey { get; set; }
 
             public string Foo { get; set; }
@@ -728,18 +722,22 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// Tests the recursive inverse relationship automatic discovery
         /// Issue #17: https://bitbucket.org/twincoders/sqlite-net-extensions/issue/17
         /// </summary>
-        [Test][NUnit.Framework.Ignore]
-        public void TestRecursiveInverseRelationship() {
+        [Test]
+        [NUnit.Framework.Ignore]
+        public void TestRecursiveInverseRelationship()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Employee>();
             conn.CreateTable<Employee>();
 
-            var employee1 = new Employee { 
-                Name = "Albert" 
+            var employee1 = new Employee
+            {
+                Name = "Albert"
             };
             conn.Insert(employee1);
 
-            var employee2 = new Employee {
+            var employee2 = new Employee
+            {
                 Name = "Leonardo",
                 SupervisorId = employee1.Id
             };

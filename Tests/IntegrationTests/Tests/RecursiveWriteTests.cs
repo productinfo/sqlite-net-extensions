@@ -6,12 +6,6 @@ using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
 using SQLite;
 
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
-using SQLite;
-#endif
-
 namespace SQLiteNetExtensions.IntegrationTests.Tests
 {
     [TestFixture]
@@ -19,18 +13,20 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
     {
         #region OneToOneRecursiveInsert
         [Table("group")] // To test the use of reserved words
-        public class Person {
+        public class Person
+        {
             [PrimaryKey, AutoIncrement]
             public int Identifier { get; set; }
 
             public string Name { get; set; }
             public string Surname { get; set; }
-            
+
             [OneToOne(CascadeOperations = CascadeOperation.CascadeInsert)]
             public Passport Passport { get; set; }
         }
 
-        public class Passport {
+        public class Passport
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -44,7 +40,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsert() {
+        public void TestOneToOneRecursiveInsert()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Passport>();
             conn.DropTable<Person>();
@@ -55,7 +52,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             {
                 Name = "John",
                 Surname = "Smith",
-                Passport = new Passport {
+                Passport = new Passport
+                {
                     PassportNumber = "JS123456"
                 }
             };
@@ -75,7 +73,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsertOrReplace() {
+        public void TestOneToOneRecursiveInsertOrReplace()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Passport>();
             conn.DropTable<Person>();
@@ -86,7 +85,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             {
                 Name = "John",
                 Surname = "Smith",
-                Passport = new Passport {
+                Passport = new Passport
+                {
                     PassportNumber = "JS123456"
                 }
             };
@@ -110,7 +110,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 Identifier = person.Identifier,
                 Name = "John",
                 Surname = "Smith",
-                Passport = new Passport {
+                Passport = new Passport
+                {
                     Id = person.Passport.Id,
                     PassportNumber = "JS123456"
                 }
@@ -134,18 +135,20 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
         #region OneToOneRecursiveInsertGuid
         [Table("column")] // To test the use of reserved words
-        public class PersonGuid {
+        public class PersonGuid
+        {
             [PrimaryKey]
             public Guid Identifier { get; set; }
-            
+
             public string Name { get; set; }
             public string Surname { get; set; }
-            
+
             [OneToOne(CascadeOperations = CascadeOperation.CascadeInsert)]
             public PassportGuid Passport { get; set; }
         }
 
-        public class PassportGuid {
+        public class PassportGuid
+        {
             [PrimaryKey]
             public Guid Id { get; set; }
 
@@ -159,7 +162,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsertGuid() {
+        public void TestOneToOneRecursiveInsertGuid()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<PassportGuid>();
             conn.DropTable<PersonGuid>();
@@ -171,7 +175,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 Identifier = Guid.NewGuid(),
                 Name = "John",
                 Surname = "Smith",
-                Passport = new PassportGuid {
+                Passport = new PassportGuid
+                {
                     Id = Guid.NewGuid(),
                     PassportNumber = "JS123456"
                 }
@@ -192,7 +197,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToOneRecursiveInsertOrReplaceGuid() {
+        public void TestOneToOneRecursiveInsertOrReplaceGuid()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<PassportGuid>();
             conn.DropTable<PersonGuid>();
@@ -204,7 +210,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 Identifier = Guid.NewGuid(),
                 Name = "John",
                 Surname = "Smith",
-                Passport = new PassportGuid {
+                Passport = new PassportGuid
+                {
                     Id = Guid.NewGuid(),
                     PassportNumber = "JS123456"
                 }
@@ -229,7 +236,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 Identifier = person.Identifier,
                 Name = "John",
                 Surname = "Smith",
-                Passport = new PassportGuid {
+                Passport = new PassportGuid
+                {
                     Id = person.Passport.Id,
                     PassportNumber = "JS123456"
                 }
@@ -253,7 +261,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
         #region OneToManyRecursiveInsert
         [Table("select")] // To test the use of reserved words
-        public class Customer {
+        public class Customer
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -262,8 +271,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             [OneToMany(CascadeOperations = CascadeOperation.CascadeInsert)]
             public Order[] Orders { get; set; }
         }
-            
-        public class Order {
+
+        public class Order
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -278,7 +288,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsert() {
+        public void TestOneToManyRecursiveInsert()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Customer>();
             conn.DropTable<Order>();
@@ -286,9 +297,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<Order>();
 
             var customer = new Customer
-            { 
+            {
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new Order { Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new Order { Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -322,7 +333,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsertOrReplace() {
+        public void TestOneToManyRecursiveInsertOrReplace()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Customer>();
             conn.DropTable<Order>();
@@ -330,9 +342,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<Order>();
 
             var customer = new Customer
-            { 
+            {
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new Order { Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new Order { Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -365,10 +377,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             }
 
             var newCustomer = new Customer
-            { 
+            {
                 Id = customer.Id,
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new Order { Id = customer.Orders[0].Id, Amount = 15.7f, Date = new DateTime(2012, 5, 15, 11, 30, 15) },
                     new Order { Id = customer.Orders[2].Id, Amount = 55.2f, Date = new DateTime(2012, 3, 7, 13, 59, 1) },
@@ -405,7 +417,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         #endregion
 
         #region OneToManyRecursiveInsertGuid
-        public class CustomerGuid {
+        public class CustomerGuid
+        {
             [PrimaryKey]
             public Guid Id { get; set; }
 
@@ -416,7 +429,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Table("Orders")] // 'Order' is a reserved keyword
-        public class OrderGuid {
+        public class OrderGuid
+        {
             [PrimaryKey]
             public Guid Id { get; set; }
 
@@ -431,7 +445,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsertGuid() {
+        public void TestOneToManyRecursiveInsertGuid()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<CustomerGuid>();
             conn.DropTable<OrderGuid>();
@@ -439,10 +454,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<OrderGuid>();
 
             var customer = new CustomerGuid
-            { 
+            {
                 Id = Guid.NewGuid(),
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -476,7 +491,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestOneToManyRecursiveInsertOrReplaceGuid() {
+        public void TestOneToManyRecursiveInsertOrReplaceGuid()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<CustomerGuid>();
             conn.DropTable<OrderGuid>();
@@ -484,10 +500,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<OrderGuid>();
 
             var customer = new CustomerGuid
-            { 
+            {
                 Id = Guid.NewGuid(),
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -520,10 +536,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             }
 
             var newCustomer = new CustomerGuid
-            { 
+            {
                 Id = customer.Id,
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new OrderGuid { Id = customer.Orders[0].Id, Amount = 15.7f, Date = new DateTime(2012, 5, 15, 11, 30, 15) },
                     new OrderGuid { Id = customer.Orders[2].Id, Amount = 55.2f, Date = new DateTime(2012, 3, 7, 13, 59, 1) },
@@ -565,7 +581,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsert() {
+        public void TestManyToOneRecursiveInsert()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Customer>();
             conn.DropTable<Order>();
@@ -573,9 +590,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<Order>();
 
             var customer = new Customer
-            { 
+            {
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new Order { Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new Order { Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -615,7 +632,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsertOrReplace() {
+        public void TestManyToOneRecursiveInsertOrReplace()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Customer>();
             conn.DropTable<Order>();
@@ -623,9 +641,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<Order>();
 
             var customer = new Customer
-            { 
+            {
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new Order { Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new Order { Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -660,10 +678,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             }
 
             var newCustomer = new Customer
-            { 
+            {
                 Id = customer.Id,
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new Order { Id = customer.Orders[0].Id, Amount = 15.7f, Date = new DateTime(2012, 5, 15, 11, 30, 15) },
                     new Order { Id = customer.Orders[2].Id, Amount = 55.2f, Date = new DateTime(2012, 3, 7, 13, 59, 1) },
@@ -707,7 +725,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsertGuid() {
+        public void TestManyToOneRecursiveInsertGuid()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<CustomerGuid>();
             conn.DropTable<OrderGuid>();
@@ -715,10 +734,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<OrderGuid>();
 
             var customer = new CustomerGuid
-            { 
+            {
                 Id = Guid.NewGuid(),
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -758,7 +777,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         /// one of the orders instead of the customer
         /// </summary>
         [Test]
-        public void TestManyToOneRecursiveInsertOrReplaceGuid() {
+        public void TestManyToOneRecursiveInsertOrReplaceGuid()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<CustomerGuid>();
             conn.DropTable<OrderGuid>();
@@ -766,10 +786,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             conn.CreateTable<OrderGuid>();
 
             var customer = new CustomerGuid
-            { 
+            {
                 Id = Guid.NewGuid(),
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 25.7f, Date = new DateTime(2014, 5, 15, 11, 30, 15) },
                     new OrderGuid { Id = Guid.NewGuid(), Amount = 15.2f, Date = new DateTime(2014, 3, 7, 13, 59, 1) },
@@ -804,10 +824,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             }
 
             var newCustomer = new CustomerGuid
-            { 
+            {
                 Id = customer.Id,
                 Name = "John Smith",
-                Orders = new []
+                Orders = new[]
                 {
                     new OrderGuid { Id = customer.Orders[0].Id, Amount = 15.7f, Date = new DateTime(2012, 5, 15, 11, 30, 15) },
                     new OrderGuid { Id = customer.Orders[2].Id, Amount = 55.2f, Date = new DateTime(2012, 3, 7, 13, 59, 1) },
@@ -846,7 +866,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         #endregion
 
         #region ManyToManyCascadeWithSameClassRelationship
-        public class TwitterUser {
+        public class TwitterUser
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
@@ -861,7 +882,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 CascadeOperations = CascadeOperation.CascadeRead, ReadOnly = true)]
             public List<TwitterUser> Followers { get; set; }
 
-            public override bool Equals(object obj) {
+            public override bool Equals(object obj)
+            {
                 var other = obj as TwitterUser;
                 return other != null && Name.Equals(other.Name);
             }
@@ -876,13 +898,15 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         // Intermediate class, not used directly anywhere in the code, only in ManyToMany attributes and table creation
-        public class FollowerLeaderRelationshipTable {
+        public class FollowerLeaderRelationshipTable
+        {
             public int LeaderId { get; set; }
             public int FollowerId { get; set; }
         }
 
         [Test]
-        public void TestManyToManyRecursiveInsertWithSameClassRelationship() {
+        public void TestManyToManyRecursiveInsertWithSameClassRelationship()
+        {
             // We will configure the following scenario
             // 'John' follows 'Peter' and 'Thomas'
             // 'Thomas' follows 'John'
@@ -925,20 +949,20 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             var anthony = new TwitterUser { Name = "anthony" };
             var peter = new TwitterUser { Name = "Peter" };
 
-            john.FollowingUsers = new List<TwitterUser>{ peter, thomas };
-            thomas.FollowingUsers = new List<TwitterUser>{ john };
-            will.FollowingUsers = new List<TwitterUser>{ claire };
-            claire.FollowingUsers = new List<TwitterUser>{ will };
-            jaime.FollowingUsers = new List<TwitterUser>{ peter, thomas, mark };
+            john.FollowingUsers = new List<TwitterUser> { peter, thomas };
+            thomas.FollowingUsers = new List<TwitterUser> { john };
+            will.FollowingUsers = new List<TwitterUser> { claire };
+            claire.FollowingUsers = new List<TwitterUser> { will };
+            jaime.FollowingUsers = new List<TwitterUser> { peter, thomas, mark };
             mark.FollowingUsers = new List<TwitterUser>();
-            martha.FollowingUsers = new List<TwitterUser>{ anthony };
-            anthony.FollowingUsers = new List<TwitterUser>{ peter };
-            peter.FollowingUsers = new List<TwitterUser>{ martha };
+            martha.FollowingUsers = new List<TwitterUser> { anthony };
+            anthony.FollowingUsers = new List<TwitterUser> { peter };
+            peter.FollowingUsers = new List<TwitterUser> { martha };
 
-            var allUsers = new []{ john, thomas, will, claire, jaime, mark, martha, anthony, peter };
+            var allUsers = new[] { john, thomas, will, claire, jaime, mark, martha, anthony, peter };
 
             // Only need to insert Jaime and Claire, the other users are contained in these trees
-            conn.InsertAllWithChildren(new []{ jaime, claire }, recursive: true);
+            conn.InsertAllWithChildren(new[] { jaime, claire }, recursive: true);
 
             Action<TwitterUser, TwitterUser> checkUser = (expected, obtained) =>
             {
@@ -973,7 +997,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestManyToManyRecursiveDeleteWithSameClassRelationship() {
+        public void TestManyToManyRecursiveDeleteWithSameClassRelationship()
+        {
             // We will configure the following scenario
             // 'John' follows 'Peter' and 'Thomas'
             // 'Thomas' follows 'John'
@@ -1016,17 +1041,17 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             var anthony = new TwitterUser { Name = "anthony" };
             var peter = new TwitterUser { Name = "Peter" };
 
-            john.FollowingUsers = new List<TwitterUser>{ peter, thomas };
-            thomas.FollowingUsers = new List<TwitterUser>{ john };
-            will.FollowingUsers = new List<TwitterUser>{ claire };
-            claire.FollowingUsers = new List<TwitterUser>{ will };
-            jaime.FollowingUsers = new List<TwitterUser>{ peter, thomas, mark };
+            john.FollowingUsers = new List<TwitterUser> { peter, thomas };
+            thomas.FollowingUsers = new List<TwitterUser> { john };
+            will.FollowingUsers = new List<TwitterUser> { claire };
+            claire.FollowingUsers = new List<TwitterUser> { will };
+            jaime.FollowingUsers = new List<TwitterUser> { peter, thomas, mark };
             mark.FollowingUsers = new List<TwitterUser>();
-            martha.FollowingUsers = new List<TwitterUser>{ anthony };
-            anthony.FollowingUsers = new List<TwitterUser>{ peter };
-            peter.FollowingUsers = new List<TwitterUser>{ martha };
+            martha.FollowingUsers = new List<TwitterUser> { anthony };
+            anthony.FollowingUsers = new List<TwitterUser> { peter };
+            peter.FollowingUsers = new List<TwitterUser> { martha };
 
-            var allUsers = new []{ john, thomas, will, claire, jaime, mark, martha, anthony, peter };
+            var allUsers = new[] { john, thomas, will, claire, jaime, mark, martha, anthony, peter };
 
             // Inserts all the objects in the database recursively
             conn.InsertAllWithChildren(allUsers, recursive: true);
@@ -1034,7 +1059,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             // Deletes the entity tree starting at 'Thomas' recursively
             conn.Delete(thomas, recursive: true);
 
-            var expectedUsers = new []{ jaime, mark, claire, will };
+            var expectedUsers = new[] { jaime, mark, claire, will };
             var existingUsers = conn.Table<TwitterUser>().ToList();
 
             // Check that the users have been deleted and only the users outside the 'Thomas' tree still exist
@@ -1043,7 +1068,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         #endregion
 
         #region InsertTextBlobPropertiesRecursive
-        class Teacher {
+        class Teacher
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
             public string Name { get; set; }
@@ -1052,7 +1078,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             public List<Student> Students { get; set; }
         }
 
-        class Student {
+        class Student
+        {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
             public string Name { get; set; }
@@ -1069,20 +1096,23 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
         }
 
-        class Address {
+        class Address
+        {
             public string Street { get; set; }
             public string Town { get; set; }
         }
 
         [Test]
-        public void TestInsertTextBlobPropertiesRecursive() {
+        public void TestInsertTextBlobPropertiesRecursive()
+        {
             var conn = Utils.CreateConnection();
             conn.DropTable<Student>();
             conn.DropTable<Teacher>();
             conn.CreateTable<Student>();
             conn.CreateTable<Teacher>();
 
-            var teacher = new Teacher {
+            var teacher = new Teacher
+            {
                 Name = "John Smith",
                 Students = new List<Student> {
                     new Student {
@@ -1111,7 +1141,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             conn.InsertWithChildren(teacher, recursive: true);
 
-            foreach (var student in teacher.Students) {
+            foreach (var student in teacher.Students)
+            {
                 var dbStudent = conn.GetWithChildren<Student>(student.Id);
                 Assert.NotNull(dbStudent);
                 Assert.NotNull(dbStudent.Address);

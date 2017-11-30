@@ -4,15 +4,9 @@ using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
 using SQLite;
 
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
-using SQLite;
-#endif
-
 namespace SQLiteNetExtensions.IntegrationTests.Tests
 {
-    
+
     [TestFixture]
     public class ManyToOneTests
     {
@@ -48,9 +42,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
 
             // Use standard SQLite-Net API to create a new relationship
             var objectB = new M2OClassB
-                {
-                    Foo = string.Format("Foo String {0}", new Random().Next(100))
-                };
+            {
+                Foo = string.Format("Foo String {0}", new Random().Next(100))
+            };
             conn.Insert(objectB);
 
             var objectA = new M2OClassA();

@@ -7,12 +7,6 @@ using SQLiteNetExtensions.Attributes;
 using SQLiteNetExtensions.Extensions;
 using SQLite;
 
-#if USING_MVVMCROSS
-using SQLite.Net.Attributes;
-#else
-using SQLite;
-#endif
-
 namespace SQLiteNetExtensions.IntegrationTests.Tests
 {
 
@@ -52,7 +46,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
 
-            [ManyToMany(typeof(ClassCClassD), inverseForeignKey:"ClassCId")]   // Foreign key specified in ManyToMany attribute
+            [ManyToMany(typeof(ClassCClassD), inverseForeignKey: "ClassCId")]   // Foreign key specified in ManyToMany attribute
             public M2MClassD[] DObjects { get; set; } // Array instead of List
 
             public string Bar { get; set; }
@@ -79,7 +73,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             [PrimaryKey]
             public Guid Id { get; set; } // Guid identifier instead of int
 
-            [ManyToMany(typeof(ClassEClassF), inverseForeignKey:"ClassEId")]   // Foreign key specified in ManyToMany attribute
+            [ManyToMany(typeof(ClassEClassF), inverseForeignKey: "ClassEId")]   // Foreign key specified in ManyToMany attribute
             public M2MClassF[] FObjects { get; set; } // Array instead of List
 
             public string Bar { get; set; }
@@ -228,10 +222,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 for (var bIndex = 0; bIndex <= aIndex; bIndex++)
                 {
                     conn.Insert(new ClassAClassB
-                        {
-                            ClassAId = objectsA[aIndex].Id,
-                            ClassBId = objectsB[bIndex].Id
-                        });
+                    {
+                        ClassAId = objectsA[aIndex].Id,
+                        ClassBId = objectsB[bIndex].Id
+                    });
                 }
             }
 
@@ -433,7 +427,7 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                     var objectB = objectsB[bIndex];
                     objectA.BObjects.Add(objectB);
                 }
-            
+
                 conn.UpdateWithChildren(objectA);
             }
 
@@ -443,9 +437,9 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 var objectA = objectsA[i];
                 var childrenCount = i + 1;
                 List<int> storedChildKeyList = (from ClassAClassB ab in conn.Table<ClassAClassB>()
-                                          where ab.ClassAId == objectA.Id
-                                          select ab.ClassBId).ToList();
-                                         
+                                                where ab.ClassAId == objectA.Id
+                                                select ab.ClassBId).ToList();
+
 
                 Assert.AreEqual(childrenCount, storedChildKeyList.Count(), "Relationship count is not correct");
                 var expectedChildIds = objectsB.GetRange(0, childrenCount).Select(objectB => objectB.Id).ToList();
@@ -569,8 +563,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 var objectA = objectsA[i];
 
                 List<int> storedChildKeyList = (from ClassAClassB ab in conn.Table<ClassAClassB>()
-                                          where ab.ClassAId == objectA.Id
-                                          select ab.ClassBId).ToList();
+                                                where ab.ClassAId == objectA.Id
+                                                select ab.ClassBId).ToList();
 
 
                 var expectedChildIds = objectsB.GetRange(0, i + 1).Where(b => !objectsBToRemove.Contains(b)).Select(objectB => objectB.Id).ToList();
@@ -660,10 +654,10 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
                 for (var fIndex = 0; fIndex <= eIndex; fIndex++)
                 {
                     conn.Insert(new ClassEClassF
-                        {
-                            ClassEId = objectsE[eIndex].Id,
-                            ClassFId = objectsF[fIndex].Id
-                        });
+                    {
+                        ClassEId = objectsE[eIndex].Id,
+                        ClassFId = objectsF[fIndex].Id
+                    });
                 }
             }
 
@@ -692,7 +686,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestManyToManyCircular() {
+        public void TestManyToManyCircular()
+        {
             // In this test we will create a many to many relationship between instances of the same class
             // including inverse relationship
 
@@ -719,22 +714,22 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             var object5 = new M2MClassG { Name = "Object 5" };
             var object6 = new M2MClassG { Name = "Object 6" };
 
-            var objects = new List<M2MClassG>{ object1, object2, object3, object4, object5, object6 };
+            var objects = new List<M2MClassG> { object1, object2, object3, object4, object5, object6 };
             conn.InsertAll(objects);
 
-            object2.Parents = new ObservableCollection<M2MClassG>{ object1 };
-            object2.Children = new List<M2MClassG>{ object4, object5 };
+            object2.Parents = new ObservableCollection<M2MClassG> { object1 };
+            object2.Children = new List<M2MClassG> { object4, object5 };
             conn.UpdateWithChildren(object2);
 
-            object3.Parents = new ObservableCollection<M2MClassG>{ object1 };
-            object3.Children = new List<M2MClassG>{ object5, object6 };
+            object3.Parents = new ObservableCollection<M2MClassG> { object1 };
+            object3.Children = new List<M2MClassG> { object5, object6 };
             conn.UpdateWithChildren(object3);
 
             // These relationships are discovered on runtime, assign them to check for correctness below
-            object1.Children = new List<M2MClassG>{ object2, object3 };
-            object4.Parents = new ObservableCollection<M2MClassG>{ object2 };
-            object5.Parents = new ObservableCollection<M2MClassG>{ object2, object3 };
-            object6.Parents = new ObservableCollection<M2MClassG>{ object3 };
+            object1.Children = new List<M2MClassG> { object2, object3 };
+            object4.Parents = new ObservableCollection<M2MClassG> { object2 };
+            object5.Parents = new ObservableCollection<M2MClassG> { object2, object3 };
+            object6.Parents = new ObservableCollection<M2MClassG> { object3 };
 
             foreach (var expected in objects)
             {
@@ -753,7 +748,8 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
         }
 
         [Test]
-        public void TestManyToManyCircularReadOnly() {
+        public void TestManyToManyCircularReadOnly()
+        {
             // In this test we will create a many to many relationship between instances of the same class
             // including inverse relationship
 
@@ -780,24 +776,24 @@ namespace SQLiteNetExtensions.IntegrationTests.Tests
             var object5 = new M2MClassH { Name = "Object 5" };
             var object6 = new M2MClassH { Name = "Object 6" };
 
-            var objects = new List<M2MClassH>{ object1, object2, object3, object4, object5, object6 };
+            var objects = new List<M2MClassH> { object1, object2, object3, object4, object5, object6 };
             conn.InsertAll(objects);
 
-            object1.Children = new ObservableCollection<M2MClassH>{ object2, object3 };
+            object1.Children = new ObservableCollection<M2MClassH> { object2, object3 };
             conn.UpdateWithChildren(object1);
 
-            object2.Children = new ObservableCollection<M2MClassH>{ object4, object5 };
+            object2.Children = new ObservableCollection<M2MClassH> { object4, object5 };
             conn.UpdateWithChildren(object2);
 
-            object3.Children = new ObservableCollection<M2MClassH>{ object5, object6 };
+            object3.Children = new ObservableCollection<M2MClassH> { object5, object6 };
             conn.UpdateWithChildren(object3);
 
             // These relationships are discovered on runtime, assign them to check for correctness below
-            object2.Parents = new List<M2MClassH>{ object1 };
-            object3.Parents = new List<M2MClassH>{ object1 };
-            object4.Parents = new List<M2MClassH>{ object2 };
-            object5.Parents = new List<M2MClassH>{ object2, object3 };
-            object6.Parents = new List<M2MClassH>{ object3 };
+            object2.Parents = new List<M2MClassH> { object1 };
+            object3.Parents = new List<M2MClassH> { object1 };
+            object4.Parents = new List<M2MClassH> { object2 };
+            object5.Parents = new List<M2MClassH> { object2, object3 };
+            object6.Parents = new List<M2MClassH> { object3 };
 
             foreach (var expected in objects)
             {

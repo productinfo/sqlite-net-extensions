@@ -9,6 +9,6 @@
     <PackageReference Include="SQLitePCLRaw.core" Version="1.1.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SQLiteNetExtensions\SQLiteNetExtensions-PCL.csproj" />
+    <ProjectReference Include="..\SQLiteNetExtensions\SQLiteNetExtensions.csproj" />
   </ItemGroup>
 </Project>

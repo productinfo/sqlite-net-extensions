@@ -9,15 +9,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteNetExtensions-MvvmCro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Touch-MvvmCross", "MvvmCross\IntegrationTests.Touch-MvvmCross\IntegrationTests.Touch-MvvmCross.csproj", "{54E8FEC0-144D-414B-BBBB-9F51FF355FC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteNetExtensions-PCL", "SQLiteNetExtensions\SQLiteNetExtensions-PCL.csproj", "{F723017D-EDE5-49CC-A84F-881C067C6004}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteNetExtensions", "SQLiteNetExtensions\SQLiteNetExtensions.csproj", "{F723017D-EDE5-49CC-A84F-881C067C6004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteNetExtensionsAsync-PCL", "SQLiteNetExtensionsAsync-PCL\SQLiteNetExtensionsAsync-PCL.csproj", "{F206CA90-929F-4C1B-888A-5FAF6EE67D3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteNetExtensionsAsync", "SQLiteNetExtensionsAsync\SQLiteNetExtensionsAsync.csproj", "{F206CA90-929F-4C1B-888A-5FAF6EE67D3C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8027C28D-2C7F-41CF-AF2D-5A570B091D10}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "Tests\UnitTests\UnitTests.csproj", "{BF071104-5568-4D7A-B50C-20C6588046C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Touch-PCL", "Tests\IntegrationTests.Touch\IntegrationTests.Touch-PCL.csproj", "{3CED4953-37A6-4B28-A1D3-72762F55E78A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Touch", "Tests\IntegrationTests.Touch\IntegrationTests.Touch.csproj", "{3CED4953-37A6-4B28-A1D3-72762F55E78A}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IntegrationTests", "Tests\IntegrationTests\IntegrationTests.shproj", "{B4D87587-6BE9-4BB4-9F31-EBBB1005C4C4}"
 EndProject

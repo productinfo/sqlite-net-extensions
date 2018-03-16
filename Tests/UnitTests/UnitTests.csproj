@@ -88,9 +88,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SQLiteNetExtensions\SQLiteNetExtensions-PCL.csproj">
+    <ProjectReference Include="..\..\SQLiteNetExtensions\SQLiteNetExtensions.csproj">
       <Project>{F723017D-EDE5-49CC-A84F-881C067C6004}</Project>
-      <Name>SQLiteNetExtensions-PCL</Name>
+      <Name>SQLiteNetExtensions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

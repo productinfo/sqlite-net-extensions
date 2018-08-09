@@ -21,6 +21,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Touch", "T
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IntegrationTests", "Tests\IntegrationTests\IntegrationTests.shproj", "{B4D87587-6BE9-4BB4-9F31-EBBB1005C4C4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{D2A928D0-0EDA-4277-9582-F06542645E5B}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+		SQLiteNetExtensions-MvvmCross.nuspec = SQLiteNetExtensions-MvvmCross.nuspec
+		SQLiteNetExtensions.nuspec = SQLiteNetExtensions.nuspec
+		SQLiteNetExtensionsAsync.nuspec = SQLiteNetExtensionsAsync.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests\IntegrationTests\IntegrationTests.projitems*{b4d87587-6be9-4bb4-9f31-ebbb1005c4c4}*SharedItemsImports = 13
